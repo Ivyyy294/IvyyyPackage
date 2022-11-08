@@ -1,0 +1,22 @@
+{
+  "name": "com.ivyyy.ivyyypackage",
+  "version": "1.0.0",
+  "displayName": "IvyyyPackage",
+  "description": "This is my personal package",
+  "unity": "2021.3",
+  "unityRelease": "11f1",
+  "documentationUrl": "https://example.com/",
+  "changelogUrl": "https://example.com/changelog.html",
+  "licensesUrl": "https://example.com/licensing.html",
+  "keywords": [
+    "keyword1",
+    "keyword2",
+    "keyword3"
+  ],
+  "author": {
+    "name": "Ivyyy",
+    "email": "unity@example.com",
+    "url": "https://www.unity3d.com"
+  },
+  "type": "library"
+}
