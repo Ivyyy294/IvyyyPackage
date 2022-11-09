@@ -4,8 +4,9 @@ using UnityEngine;
 
 namespace Ivyyy
 {
-    public class AudioHandler : MonoBehaviour
-    {
+	[RequireComponent(typeof(AudioSource))]
+	public class AudioHandler : MonoBehaviour
+	{
 		public static AudioHandler Me;
 
 		[SerializeField] private AudioSource source;
@@ -33,5 +34,5 @@ namespace Ivyyy
 					source.PlayOneShot (audioList[name], volume);
 			}
 		}
-    }
+	}
 }

@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace Ivyyy
 {
+	// PlayerScript requires the GameObject to have a Rigidbody component
+	[RequireComponent(typeof(Rigidbody))]
 	public class PlayerMovement : MonoBehaviour
 	{
 		protected Rigidbody m_Rigidbody;

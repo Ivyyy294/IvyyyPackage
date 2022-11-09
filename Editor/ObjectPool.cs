@@ -4,11 +4,42 @@ using UnityEngine;
 
 namespace Ivyyy
 {
+	public class ObjectPoolAutoSpawn : ObjectPool
+	{
+		protected float timer = 0f;
+		[SerializeField] protected float spawnCoolDown = 1f;
+		[SerializeField] protected Vector3 spawnPosition;
+
+		protected override void Start()
+		{
+			timer = spawnCoolDown;
+			base.Start();
+		}
+		protected virtual Vector3 GetSpawnPosition()	{ return spawnPosition;}
+		protected virtual bool CheckSpawnCondition() { return timer >= spawnCoolDown;}
+
+		protected void Update()
+		{
+			if (CheckSpawnCondition())
+			{
+				ActivateObject (GetSpawnPosition());
+				timer = 0f;
+			}
+			else
+				timer += Time.deltaTime;
+		}
+	}
+
 	public class ObjectPool : MonoBehaviour
 	{
 		protected List <GameObject> pooledObjects;
 		[SerializeField] protected GameObject objectToPool;
 		[SerializeField] protected uint anz = 1;
+
+		protected virtual void Start()
+		{
+			Spawn();
+		}
 
 		protected void Spawn ()
 		{
