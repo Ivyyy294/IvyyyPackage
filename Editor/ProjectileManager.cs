@@ -13,7 +13,7 @@ namespace Ivyyy
 		List <GameObject> pooledObjects;
 		[SerializeField] protected uint magSize;
 
-		[Tooltip ("Fire settings")]
+		[Header ("Fire settings")]
 		[SerializeField] GameObject projectile;
 		[SerializeField] protected KeyCode fireKey = KeyCode.None;
 		[SerializeField] protected bool isMouseKey = false;
@@ -21,8 +21,8 @@ namespace Ivyyy
 		[SerializeField] float coolDownLaser = 0f;
 		[SerializeField] GameObject parentTransform = null;
 		[SerializeField] protected uint salvoSize = 1;
-		
-		[Tooltip ("Reload settings")]
+		[Space]
+		[Header ("Reload settings")]
 		[SerializeField] protected KeyCode reloadKey = KeyCode.None;
 		[SerializeField] protected bool onKeyDown = true;
 		[SerializeField] protected float reloadTime = 0f;

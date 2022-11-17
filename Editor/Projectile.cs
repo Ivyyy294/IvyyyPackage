@@ -8,6 +8,9 @@ namespace Ivyyy
 	{
 		[SerializeField] float speed = 0f;
 		[SerializeField] float maxRange = 0f;
+
+		[Space]
+
 		[SerializeField] List <string> TagWhiteList;
 		public Line trajectory = new Line();
 		Line path = new Line ();
