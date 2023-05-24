@@ -19,7 +19,6 @@ namespace Ivyyy
 		[SerializeField] protected bool isMouseKey = false;
 		[SerializeField] protected int fireMouseKey = 0;
 		[SerializeField] float coolDownLaser = 0f;
-		[SerializeField] GameObject parentTransform = null;
 		[SerializeField] protected uint salvoSize = 1;
 		[Space]
 		[Header ("Reload settings")]
