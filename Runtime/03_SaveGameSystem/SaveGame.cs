@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using System.IO;
 
-namespace Ivyyy
+namespace Ivyyy.SaveGameSystem
 {
 	public class SaveGame
 	{
