@@ -49,7 +49,7 @@ namespace Ivyyy.Core
 
 		Vector3 GetHorizontalMovement()
 		{
-			bool isSprinting = Input.GetKey (KeyCode.LeftShift);
+			bool isSprinting = sprintSpeed != -1 && Input.GetKey (KeyCode.LeftShift);
 			currentSpeed = ((isSprinting) ? sprintSpeed : baseSpeed) * Time.deltaTime;
 
 			//Camera.main.fieldOfView = isSprinting ? 70f : 60f;
@@ -78,7 +78,7 @@ namespace Ivyyy.Core
 			else
 				verticalMovement.y -= gravity * Time.deltaTime;
 
-			if (Input.GetKeyDown(KeyCode.Space) && (characterController.isGrounded || jumpCounter < jumpNumber))
+			if (jumpNumber != -1 && Input.GetKeyDown(KeyCode.Space) && (characterController.isGrounded || jumpCounter < jumpNumber))
 			{
 				verticalMovement.y = Mathf.Sqrt(jumpHeight * gravity * 2f);
 				jumpCounter++;
