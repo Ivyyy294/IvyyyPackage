@@ -5,7 +5,12 @@ using UnityEngine.Events;
 
 namespace Ivyyy.GameEvent
 {
-	public class GameEventListener : MonoBehaviour
+	public interface IGameEventListener
+	{
+		public void OnEventRaised();
+	}
+
+	public class GameEventListener : MonoBehaviour, IGameEventListener
 	{
 		public GameEvent gameEvent;
 		public UnityEvent response;

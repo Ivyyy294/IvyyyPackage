@@ -7,7 +7,7 @@ namespace Ivyyy.GameEvent
 	[CreateAssetMenu (menuName = "GameEvent")]
 	public class GameEvent : ScriptableObject
 	{
-		private List <GameEventListener> listeners = new List<GameEventListener>();
+		private List <IGameEventListener> listeners = new List<IGameEventListener>();
 
 		public void Raise()
 		{
@@ -15,12 +15,12 @@ namespace Ivyyy.GameEvent
 			listeners.ForEach (x=>x.OnEventRaised());
 		}
 
-		public void RegisterListener(GameEventListener listener)
+		public void RegisterListener(IGameEventListener listener)
 		{
 			listeners.Add(listener); 
 		}
 
-		public void UnregisterListener(GameEventListener listener)
+		public void UnregisterListener(IGameEventListener listener)
 		{
 			listeners.Remove(listener); 
 		}
