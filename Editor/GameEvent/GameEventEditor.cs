@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
+
 namespace Ivyyy.GameEvent
 {
 	[CustomEditor(typeof(GameEvent))]
@@ -15,3 +17,5 @@ namespace Ivyyy.GameEvent
 		}
 	}
 }
+
+#endif
