@@ -13,7 +13,7 @@ namespace Ivyyy.Core
 		CharacterController characterController;
 
 		[Header("Jumping")]
-		[SerializeField] float gravity = 1f;
+		[SerializeField] float gravity = 9.81f;
 		[SerializeField] float jumpHeight = 1f;
 		[SerializeField] int jumpNumber = 2;
 
