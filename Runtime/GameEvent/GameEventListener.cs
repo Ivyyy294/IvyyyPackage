@@ -17,17 +17,17 @@ namespace Ivyyy.GameEvent
 
 		private void OnEnable()
 		{
-			gameEvent.RegisterListener(this);
+			gameEvent?.RegisterListener(this);
 		}
 
 		private void OnDisable()
 		{
-			gameEvent.UnregisterListener(this);
+			gameEvent?.UnregisterListener(this);
 		}
 
 		public void OnEventRaised()
 		{
-			response.Invoke();
+			response?.Invoke();
 		}
 	}
 }
