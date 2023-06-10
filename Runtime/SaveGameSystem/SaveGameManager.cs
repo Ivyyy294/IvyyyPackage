@@ -36,7 +36,9 @@ namespace Ivyyy.SaveGameSystem
 		private static SaveGameManager me;
 		private string filePath;
 		private Dictionary <string, Payload> ObjectDataList;
-	
+		public bool loadGameScheduled;
+		public bool LoadGameScheduled => loadGameScheduled;
+
 		//Public
 		public static SaveGameManager Me()
 		{
@@ -44,6 +46,11 @@ namespace Ivyyy.SaveGameSystem
 				me = new SaveGameManager();
 
 			return me;
+		}
+
+		public void ScheduledLoadGame()
+		{
+			loadGameScheduled = true;
 		}
 
 		public bool SaveGameAvailable()
@@ -72,6 +79,7 @@ namespace Ivyyy.SaveGameSystem
 					i.Value.LoadObject(ObjectDataList[i.Key]);
 			}
 
+			loadGameScheduled = false;
 			Debug.Log ("Load");
 		}
 
