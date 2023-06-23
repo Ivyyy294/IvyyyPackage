@@ -6,7 +6,7 @@ namespace Ivyyy.StateMachine
 {
 	public class FiniteStateMachine : StateMachine
 	{
-		private IState currentState;
+		protected IState currentState;
 
 		public override void EnterState(IState newState)
 		{
