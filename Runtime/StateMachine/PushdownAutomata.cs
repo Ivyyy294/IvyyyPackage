@@ -23,6 +23,8 @@ namespace Ivyyy.StateMachine
 				stateStack.Pop().Exit(gameObject);
 				stateStack.Peek().Enter(gameObject);
 			}
+			else
+				Debug.LogError ("Unable to Pop State!");
 		}
 
 		protected override void Update ()
