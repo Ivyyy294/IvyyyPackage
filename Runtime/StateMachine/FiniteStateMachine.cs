@@ -10,7 +10,9 @@ namespace Ivyyy.StateMachine
 
 		public override void EnterState(IState newState)
 		{
-			currentState.Exit(gameObject);
+			if (currentState != null)
+				currentState.Exit(gameObject);
+			
 			currentState = newState;
 			currentState.Enter (gameObject);
 		}
