@@ -18,6 +18,8 @@ namespace Ivyyy.SaveGameSystem
 		public void Add (string key, int val) {data.Add (key, val.ToString());}
 		public void Add (string key, bool val) {data.Add (key, val.ToString());}
 
+		public bool GetBool (string key) {return bool.Parse (data[key]);}
+
 		public string GetSerializedData()
 		{
 			return JsonConvert.SerializeObject (this);
