@@ -43,7 +43,7 @@ namespace Ivyyy.Core
 		// Update is called once per frame
 		void Update()
 		{
-			if (Time.timeScale > 0f)
+			if (Time.timeScale > 0f && characterController.enabled)
 				characterController.Move (GetHorizontalMovement() + (GetVerticalMovement() * Time.deltaTime));
 		}
 
