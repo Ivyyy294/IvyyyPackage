@@ -3,31 +3,28 @@ using UnityEngine;
 
 namespace Ivyyy.StateMachine
 {
-	public class PushdownAutomata : StateMachine
+	public class PushdownAutomata : MonoBehaviour
 	{
 		Stack <IState> stateStack = new Stack <IState>();
 
-		public override void EnterState (IState newState)
+		public void PushState (IState newState)
 		{
-			if (stateStack.Count > 0)
-				stateStack.Peek().Exit(gameObject);
-
 			stateStack.Push (newState);
 			stateStack.Peek().Enter(gameObject);
 		}
 
-		public void PopState()
+		public void SwapState (IState newState)
 		{
-			if (stateStack.Count > 1)
-			{
-				stateStack.Pop().Exit(gameObject);
-				stateStack.Peek().Enter(gameObject);
-			}
-			else
-				Debug.LogError ("Unable to Pop State!");
+			PopState();
+			PushState (newState);
 		}
 
-		protected override void Update ()
+		public void PopState()
+		{
+			stateStack.Pop().Exit(gameObject);
+		}
+
+		protected virtual void Update ()
 		{
 			if (stateStack.Count > 0)
 				stateStack.Peek().Update(gameObject);
