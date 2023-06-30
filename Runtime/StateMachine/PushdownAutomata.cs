@@ -7,6 +7,8 @@ namespace Ivyyy.StateMachine
 	{
 		Stack <IState> stateStack = new Stack <IState>();
 
+		public IState CurrentState() { return stateStack.Peek();}
+
 		public void PushState (IState newState)
 		{
 			stateStack.Push (newState);
