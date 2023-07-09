@@ -13,8 +13,11 @@ namespace Ivyyy.StateMachine
 			if (currentState != null)
 				currentState.Exit(gameObject);
 			
-			currentState = newState;
-			currentState.Enter (gameObject);
+			if (newState != null)
+			{
+				currentState = newState;
+				currentState.Enter (gameObject);
+			}
 		}
 
 		protected override void Update()
