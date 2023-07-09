@@ -85,6 +85,12 @@ namespace Ivyyy.SaveGameSystem
 			Debug.Log ("Load");
 		}
 
+		public void DeleteSaveGame()
+		{
+			if (SaveGameAvailable())
+				File.Delete (filePath);
+		}
+
 		//Private
 		private SaveGameManager()
 		{
