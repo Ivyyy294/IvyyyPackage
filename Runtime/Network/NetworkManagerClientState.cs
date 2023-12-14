@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -60,12 +61,12 @@ namespace Ivyyy.Network
 			networkPackage.Clear();
 
 			//Only Update owned NetworkObject
-			for (int i = 0; i < NetworkManager.Me.NetworkObjects.Count; ++i)
+			foreach (KeyValuePair<string, NetworkBehaviour> entry in NetworkBehaviour.guidMap)
 			{
-				NetworkObject networkObject = NetworkManager.Me.NetworkObjects[i];
+				NetworkBehaviour networkObject = entry.Value;
 
 				if (networkObject.Owner && networkObject.gameObject.activeInHierarchy)
-					networkPackage.AddValue (GetNetObjectAsValue (i, networkObject));
+					networkPackage.AddValue (GetNetObjectAsValue (networkObject));
 			}
 
 			udpClientThread.SendData (networkPackage.GetSerializedData());

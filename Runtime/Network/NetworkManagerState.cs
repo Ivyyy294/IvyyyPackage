@@ -11,7 +11,7 @@ namespace Ivyyy.Network
 		public abstract void ShutDown();
 
 		//Protected Values
-		protected const int idOffset = sizeof (int);
+		protected const int idOffset = 16; //size of guid
 		protected NetworkPackage networkPackage = new NetworkPackage();
 
 		//Public Methods
@@ -19,11 +19,13 @@ namespace Ivyyy.Network
 		public static  void SetNetObjectFromValue (NetworkPackageValue netValue)
 		{
 			byte[] payload = netValue.GetBytes();
-			int id = BitConverter.ToInt32 (payload, 0);
+			byte[] tmp = new byte[16];
+			Array.Copy (payload, 0, tmp, 0, idOffset);
+			string id = new Guid (tmp).ToString();
 
-			if (id < NetworkManager.Me.NetworkObjects.Count)
+			if (NetworkBehaviour.guidMap.ContainsKey (id))
 			{
-				NetworkObject netObject = NetworkManager.Me.NetworkObjects[id];
+				NetworkBehaviour netObject = NetworkBehaviour.guidMap[id];
 
 				//Only Update not owned objects
 				if (!netObject.Owner)
@@ -51,11 +53,11 @@ namespace Ivyyy.Network
 		}
 
 		//encapsules the given NetworkObject with the given index into a NetworkPackageValue
-		protected NetworkPackageValue GetNetObjectAsValue (int index, NetworkObject netObject)
+		protected NetworkPackageValue GetNetObjectAsValue (NetworkBehaviour netObject)
 		{
 			//Add NetworkObject id to payload
 			byte[] objectData = netObject.GetSerializedData();
-			byte[] id = BitConverter.GetBytes (index);
+			byte[] id = new System.Guid (netObject.GUID).ToByteArray();
 			byte[] payload = new byte [idOffset + objectData.Length];
 
 			Array.Copy (id, 0, payload, 0, idOffset);

@@ -1,59 +1,64 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.SceneManagement;
+ #endif
 
 namespace Ivyyy.Network
 {
-	public abstract class NetworkObject : MonoBehaviour
-	{
-		public NetworkObject()
+	[ExecuteInEditMode]
+    public class NetworkObject : MonoBehaviour
+    {
+		private NetworkBehaviour[] networkBehaviours;
+		private NetworkPackage package = new NetworkPackage();
+
+		// Start is called before the first frame update
+        void Start()
+        {
+			networkBehaviours = GetComponents <NetworkBehaviour>();
+			
+			foreach (NetworkBehaviour i in networkBehaviours)
+			{
+				if (i.IsGuidValid() && i.IsGuidUnique())
+					NetworkBehaviour.guidMap.Add (i.GUID, i);
+			}
+        }
+
+		void OnDestroy()
 		{
-			networkPackage = backBuffer1;
+			foreach (NetworkBehaviour i in networkBehaviours)
+			{
+				if (NetworkBehaviour.guidMap.ContainsKey (i.GUID))
+					NetworkBehaviour.guidMap.Remove (i.GUID);
+			}
 		}
 
-		public bool Owner {get; set;}
-
-		public byte[] GetSerializedData()
+#if UNITY_EDITOR
+		private void Update()
 		{
-			//Clear Package
-			networkPackage.Clear();
+			// Don't do anything when running the game
+			if (Application.isPlaying)
+				return;
 
-			//Call abstract SetPackageData
-			SetPackageData();
+			networkBehaviours = GetComponents <NetworkBehaviour>();
 
-			//Return Serialized Data
-			return networkPackage.GetSerializedData();
+			foreach (NetworkBehaviour i in networkBehaviours)
+			{
+				if (!i.IsGuidValid() || !i.IsGuidUnique())
+				{
+					do {i.GenerateGuid();}
+					while (!i.IsGuidUnique());
+
+					NetworkBehaviour.guidMap.Add (i.GUID, i);
+					EditorUtility.SetDirty (this);
+					EditorSceneManager.MarkSceneDirty (gameObject.scene);
+				}
+			}
 		}
-		public bool DeserializeData (byte[] rawData)
-		{
-			NetworkPackage backBuffer = GetBackBuffer();
-			bool ok = backBuffer.DeserializeData(rawData);
-			SwapBuffer();
-			return ok;
-		}
-
-		protected abstract void SetPackageData();
-		protected bool Host {get {return NetworkManager.Me.Host;}}
-
-		protected NetworkPackage networkPackage;
-
-		//Private values
-		//Double buffer is probably unessescary at this point and a relict of iterations
-		private NetworkPackage backBuffer1 = new NetworkPackage();
-		private NetworkPackage backBuffer2 = new NetworkPackage();
-
-		private void SwapBuffer()
-		{
-			networkPackage = GetBackBuffer();
-		}
-
-		NetworkPackage GetBackBuffer()
-		{
-			if (networkPackage == backBuffer1)
-				return backBuffer2;
-			else
-				return backBuffer1;
-		}
+#endif
 	}
 }

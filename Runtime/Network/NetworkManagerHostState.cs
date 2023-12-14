@@ -29,12 +29,12 @@ namespace Ivyyy.Network
 			 networkPackage.Clear();
 
 			//Create combined NetworkPackage of all NetworkObjects
-			for (int i = 0; i < NetworkManager.Me.NetworkObjects.Count; ++i)
+			foreach (KeyValuePair<string, NetworkBehaviour> entry in NetworkBehaviour.guidMap)
 			{
-				NetworkObject netObj = NetworkManager.Me.NetworkObjects[i];
+				NetworkBehaviour netObj = entry.Value;
 
 				if (netObj.gameObject.activeInHierarchy)
-					networkPackage.AddValue (GetNetObjectAsValue (i, netObj));
+					networkPackage.AddValue (GetNetObjectAsValue (netObj));
 			}
 
 			byte[] data = networkPackage.GetSerializedData();
