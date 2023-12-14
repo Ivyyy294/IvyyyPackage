@@ -19,6 +19,10 @@ namespace Ivyyy.Network
 		// Start is called before the first frame update
         void Start()
         {
+			// Don't do anything when in prefab mode
+			if  (gameObject.scene.name == null)
+				return;
+
 			networkBehaviours = GetComponents <NetworkBehaviour>();
 			
 			foreach (NetworkBehaviour i in networkBehaviours)
@@ -30,18 +34,28 @@ namespace Ivyyy.Network
 
 		void OnDestroy()
 		{
-			foreach (NetworkBehaviour i in networkBehaviours)
+			// Don't do anything when in prefab mode
+			if  (gameObject.scene.name == null)
+				return;
+
+			if (networkBehaviours != null)
 			{
-				if (NetworkBehaviour.guidMap.ContainsKey (i.GUID))
-					NetworkBehaviour.guidMap.Remove (i.GUID);
+				foreach (NetworkBehaviour i in networkBehaviours)
+				{
+					if (NetworkBehaviour.guidMap.ContainsKey (i.GUID))
+						NetworkBehaviour.guidMap.Remove (i.GUID);
+				}
 			}
 		}
 
 #if UNITY_EDITOR
 		private void Update()
 		{
-			// Don't do anything when running the game
+			// Don't do anything when running the game or in prefab mode
 			if (Application.isPlaying)
+				return;
+
+			if  (gameObject.scene.name == null)
 				return;
 
 			networkBehaviours = GetComponents <NetworkBehaviour>();
