@@ -29,7 +29,13 @@ namespace Ivyyy.Network
 		//Returns the value for the given index
 		public NetworkPackageValue Value(int index)
 		{
-			return valueList[index];
+			if (index < valueList.Count)
+				return valueList[index];
+			else
+			{
+				Debug.LogError("Invalid NetworkPackageValue index!");
+				return default (NetworkPackageValue);
+			}
 		}
 
 		//Returns the sum of the size of the contents in bytes

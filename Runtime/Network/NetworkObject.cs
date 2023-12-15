@@ -27,25 +27,25 @@ namespace Ivyyy.Network
 			
 			foreach (NetworkBehaviour i in networkBehaviours)
 			{
-				if (i.IsGuidValid() && i.IsGuidUnique())
+				if (i.IsGuidValid() && i.IsGuidUnique() && !NetworkBehaviour.guidMap.ContainsKey (i.GUID))
 					NetworkBehaviour.guidMap.Add (i.GUID, i);
 			}
         }
 
 		void OnDestroy()
 		{
-			// Don't do anything when in prefab mode
-			if  (gameObject.scene.name == null)
-				return;
+			//// Don't do anything when in prefab mode
+			//if  (gameObject.scene.name == null)
+			//	return;
 
-			if (networkBehaviours != null)
-			{
-				foreach (NetworkBehaviour i in networkBehaviours)
-				{
-					if (NetworkBehaviour.guidMap.ContainsKey (i.GUID))
-						NetworkBehaviour.guidMap.Remove (i.GUID);
-				}
-			}
+			//if (networkBehaviours != null)
+			//{
+			//	foreach (NetworkBehaviour i in networkBehaviours)
+			//	{
+			//		if (NetworkBehaviour.guidMap.ContainsKey (i.GUID))
+			//			NetworkBehaviour.guidMap.Remove (i.GUID);
+			//	}
+			//}
 		}
 
 #if UNITY_EDITOR
