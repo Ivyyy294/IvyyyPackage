@@ -97,8 +97,6 @@ namespace Ivyyy.Network
 					//clientList is 1 short of player list so clientList.Count is equal to client index
 					if (NetworkManager.Me.onClientConnected != null)
 						NetworkManager.Me.onClientConnected (clientList.Count, client);
-
-					CloseSocket(client);
 				}
 			}
 			catch (Exception e)
