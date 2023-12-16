@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Ivyyy.Network
 {
@@ -25,7 +26,15 @@ namespace Ivyyy.Network
 		public NetworkPackageValue (char val) {SetValue (BitConverter.GetBytes (val));}
 		public NetworkPackageValue (bool val) {SetValue (BitConverter.GetBytes (val));}
 		public NetworkPackageValue (string val) {SetValue (Encoding.ASCII.GetBytes (val));}
-		public NetworkPackageValue (byte[] val) {SetValue (val);}	
+		public NetworkPackageValue (byte[] val) {SetValue (val);}
+		public NetworkPackageValue (Vector3 val)
+		{
+			byte[] buffer = new byte [sizeof (float) * 3];
+			Buffer.BlockCopy (BitConverter.GetBytes(val.x), 0, buffer, 0, 4);
+			Buffer.BlockCopy (BitConverter.GetBytes(val.y), 0, buffer, 4, 4);
+			Buffer.BlockCopy (BitConverter.GetBytes(val.z), 0, buffer, 8, 4);
+			SetValue (buffer);
+		}
 
 		public short GetShort() {return BitConverter.ToInt16 (value, StartIndex);}
 		public ushort GetUShort() {return BitConverter.ToUInt16 (value, StartIndex);}
@@ -40,6 +49,15 @@ namespace Ivyyy.Network
 			byte[] tmp = new byte[value.Length - StartIndex];
 			Array.Copy (value, StartIndex, tmp, 0, tmp.Length);
 			return tmp;
+		}
+
+		public Vector3 GetVector3()
+		{
+			float x = BitConverter.ToSingle (value, StartIndex);
+			float y = BitConverter.ToSingle (value, StartIndex + 4);
+			float z = BitConverter.ToSingle (value, StartIndex + 8);
+
+			return new Vector3 (x, y, z);
 		}
 
 		//Reserves requiered memory
