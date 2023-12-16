@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using Unity.Plastic.Newtonsoft.Json;
+//using Unity.Plastic.Newtonsoft.Json;
 
 namespace Ivyyy.SaveGameSystem
 {
@@ -22,13 +22,15 @@ namespace Ivyyy.SaveGameSystem
 
 		public string GetSerializedData()
 		{
-			return JsonConvert.SerializeObject (this);
+			return "";
+			//return JsonConvert.SerializeObject (this);
 		}
 
 		public static Payload GetData (string line)
 		{
-			Payload val = JsonConvert.DeserializeObject <Payload> (line);
-			return val;
+			//Payload val = JsonConvert.DeserializeObject <Payload> (line);
+			//return val;
+			return default (Payload);
 		}
 	}
 

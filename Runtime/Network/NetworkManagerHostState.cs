@@ -32,7 +32,9 @@ namespace Ivyyy.Network
 			foreach (KeyValuePair<string, NetworkBehaviour> entry in NetworkBehaviour.guidMap)
 			{
 				NetworkBehaviour netObj = entry.Value;
-				networkPackage.AddValue (GetNetObjectAsValue (netObj));
+
+				if (netObj.Sync())
+					networkPackage.AddValue (GetNetObjectAsValue (netObj));
 			}
 
 			byte[] data = networkPackage.GetSerializedData();

@@ -26,6 +26,12 @@ namespace Ivyyy.Network
 			AddMethodsWithAttribute();
 		}
 
+		public bool Sync ()
+		{
+			//return gameObject.activeInHierarchy;
+			return true;
+		}
+
 		public bool Owner {get; set;}
 
 		public byte[] GetSerializedData()
@@ -46,10 +52,11 @@ namespace Ivyyy.Network
 		{
 			NetworkPackage backBuffer = GetBackBuffer();
 			bool ok = backBuffer.DeserializeData(rawData);
-			SwapBuffer();
 
 			if (!Owner)
 				ExecuteRPCCalls();
+
+			SwapBuffer();
 
 			return ok;
 		}
@@ -116,30 +123,30 @@ namespace Ivyyy.Network
 
 		private void SetRPCCalls()
 		{
-			while (rpcStack.Count > 0)
-			{
-				string tmp = "RPC" + rpcStack.Pop();
-				networkPackage.AddValue (new NetworkPackageValue (tmp));
-			}
+			//while (rpcStack.Count > 0)
+			//{
+			//	string tmp = "RPC" + rpcStack.Pop();
+			//	networkPackage.AddValue (new NetworkPackageValue (tmp));
+			//}
 		}
 
 		private void ExecuteRPCCalls()
 		{
-			for (int i = 0; i < networkPackage.Count; ++i)
-			{
-				string tmp = networkPackage.Value (i).GetString();
+			//for (int i = 0; i < networkPackage.Count; ++i)
+			//{
+			//	string tmp = networkPackage.Value (i).GetString();
 
-				if (tmp.Contains ("RPC"))
-				{
-					string name = tmp.Replace ("RPC", "");
+			//	if (tmp.Contains ("RPC"))
+			//	{
+			//		string name = tmp.Replace ("RPC", "");
 
-					if (delegateDictionary.TryGetValue(name, out var methodDelegate))
-					{
-						// Invoke the delegate if found
-						((Action)methodDelegate).Invoke();
-					}
-				}
-			}
+			//		if (delegateDictionary.TryGetValue(name, out var methodDelegate))
+			//		{
+			//			// Invoke the delegate if found
+			//			((Action)methodDelegate).Invoke();
+			//		}
+			//	}
+			//}
 		}
 	}
 }

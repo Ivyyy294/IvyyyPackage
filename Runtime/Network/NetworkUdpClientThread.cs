@@ -21,13 +21,11 @@ namespace Ivyyy.Network
 
 		protected override void ReceiveData()
 		{
-			IPEndPoint iPEndPoint = new IPEndPoint (IPAddress.Any, 0);
-
 			while (!shutdown)
 			{
 				if (udpClient.Available > 0)
 				{
-					byte[] data = udpClient.Receive (ref iPEndPoint);
+					byte[] data = udpClient.Receive (ref serverEndPoint);
 					networkPackage.DeserializeData (data);
 
 					//For each Value in networkPackage
