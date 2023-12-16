@@ -65,7 +65,7 @@ namespace Ivyyy.Network
 			{
 				NetworkBehaviour networkObject = entry.Value;
 
-				if (networkObject.Owner && networkObject.gameObject.activeInHierarchy)
+				if (networkObject.Owner)
 					networkPackage.AddValue (GetNetObjectAsValue (networkObject));
 			}
 
