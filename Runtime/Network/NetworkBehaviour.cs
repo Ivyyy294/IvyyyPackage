@@ -12,14 +12,26 @@ namespace Ivyyy.Network
 	[RequireComponent (typeof(NetworkObject))]
 	public abstract class NetworkBehaviour : MonoBehaviour
 	{
-		[SerializeField] string guid = null;
-		public string GUID { get { return guid;} }
+		//### Values ###
+		//Public
+		public string GUID { get { return guid;} }		
+		public bool Owner {get; set;}
 		static public Dictionary <string, NetworkBehaviour> guidMap = new Dictionary<string, NetworkBehaviour>();
+
+		//Editor
+		[SerializeField] string guid = null;
+
+		//Protected
+		protected NetworkPackage networkPackage;
+		protected bool Host {get {return NetworkManager.Me.Host;}}
 
 		//RPC
 		private Dictionary<string, Delegate> delegateDictionary = new Dictionary<string, Delegate>();
 		private Stack <string> rpcStack = new Stack<string>();
 
+
+		//### Methods ###
+		//Public
 		public NetworkBehaviour()
 		{
 			networkPackage = backBuffer1;
@@ -32,8 +44,6 @@ namespace Ivyyy.Network
 			return true;
 		}
 
-		public bool Owner {get; set;}
-
 		public byte[] GetSerializedData()
 		{
 			//Clear Package
@@ -45,9 +55,9 @@ namespace Ivyyy.Network
 			if(Owner)
 				SetRPCCalls();
 
-			//Return Serialized Data
 			return networkPackage.GetSerializedData();
 		}
+
 		public bool DeserializeData (byte[] rawData)
 		{
 			NetworkPackage backBuffer = GetBackBuffer();
@@ -61,22 +71,6 @@ namespace Ivyyy.Network
 			return ok;
 		}
 
-		public void AddMethodsWithAttribute()
-		{
-			Type type = GetType();
-			MethodInfo[] methods = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-			foreach (MethodInfo method in methods)
-			{
-				if (Attribute.IsDefined(method, typeof(RPCAttribute)))
-				{
-					// Create a delegate for the method and add it to the list
-					Delegate methodDelegate = Delegate.CreateDelegate(typeof(Action), this, method);
-					delegateDictionary[method.Name] = methodDelegate;
-				}
-			}
-		}
-
 		public void GenerateGuid()
 		{
 			guid = System.Guid.NewGuid().ToString();
@@ -84,17 +78,8 @@ namespace Ivyyy.Network
 
 		//Protected
 		protected abstract void SetPackageData();
-		protected bool Host {get {return NetworkManager.Me.Host;}}
 
-		protected NetworkPackage networkPackage;
-
-		protected void Invoke (string methodeName)
-		{
-			rpcStack.Push (methodeName);
-		}
-
-		//Private values
-		//Double buffer is probably unessescary at this point and a relict of iterations
+		//### Back Buffer ###
 		private NetworkPackage backBuffer1 = new NetworkPackage();
 		private NetworkPackage backBuffer2 = new NetworkPackage();
 
@@ -109,6 +94,29 @@ namespace Ivyyy.Network
 				return backBuffer2;
 			else
 				return backBuffer1;
+		}
+
+		//### RPC ###
+		protected void InvokeRPC (string methodeName)
+		{
+			if (Owner)
+				rpcStack.Push (methodeName);
+		}
+
+		void AddMethodsWithAttribute()
+		{
+			Type type = GetType();
+			MethodInfo[] methods = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+			foreach (MethodInfo method in methods)
+			{
+				if (Attribute.IsDefined(method, typeof(RPCAttribute)))
+				{
+					// Create a delegate for the method and add it to the list
+					Delegate methodDelegate = Delegate.CreateDelegate(typeof(Action), this, method);
+					delegateDictionary[method.Name] = methodDelegate;
+				}
+			}
 		}
 
 		private void SetRPCCalls()
