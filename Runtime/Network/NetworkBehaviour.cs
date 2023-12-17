@@ -9,26 +9,24 @@ namespace Ivyyy.Network
 	[AttributeUsage(AttributeTargets.Method)]
 	public class RPCAttribute : Attribute { }
 
-	[RequireComponent (typeof(NetworkObject))]
+	[RequireComponent(typeof(NetworkObject))]
 	public abstract class NetworkBehaviour : MonoBehaviour
 	{
 		//### Values ###
 		//Public
-		public string GUID { get { return guid;} }		
-		public bool Owner {get; set;}
-		static public Dictionary <string, NetworkBehaviour> guidMap = new Dictionary<string, NetworkBehaviour>();
+		public string GUID { get { return guid; } }
+		public bool Owner { get; set; }
+		static public Dictionary<string, NetworkBehaviour> guidMap = new Dictionary<string, NetworkBehaviour>();
 
 		//Editor
 		[SerializeField] string guid = null;
 
 		//Protected
 		protected NetworkPackage networkPackage;
-		protected bool Host {get {return NetworkManager.Me.Host;}}
+		protected bool Host { get { return NetworkManager.Me.Host; } }
 
 		//RPC
 		private Dictionary<string, Delegate> delegateDictionary = new Dictionary<string, Delegate>();
-		private Stack <string> rpcStack = new Stack<string>();
-
 
 		//### Methods ###
 		//Public
@@ -38,7 +36,7 @@ namespace Ivyyy.Network
 			AddMethodsWithAttribute();
 		}
 
-		public bool Sync ()
+		public bool Sync()
 		{
 			//return gameObject.activeInHierarchy;
 			return true;
@@ -52,19 +50,13 @@ namespace Ivyyy.Network
 			//Call abstract SetPackageData
 			SetPackageData();
 
-			if(Owner)
-				SetRPCCalls();
-
 			return networkPackage.GetSerializedData();
 		}
 
-		public bool DeserializeData (byte[] rawData)
+		public bool DeserializeData(byte[] rawData)
 		{
 			NetworkPackage backBuffer = GetBackBuffer();
 			bool ok = backBuffer.DeserializeData(rawData);
-
-			if (!Owner)
-				ExecuteRPCCalls();
 
 			SwapBuffer();
 
@@ -97,10 +89,10 @@ namespace Ivyyy.Network
 		}
 
 		//### RPC ###
-		protected void InvokeRPC (string methodeName)
+		protected void InvokeRPC(string methodeName)
 		{
 			if (Owner)
-				rpcStack.Push (methodeName);
+				NetworkRPC.AddOutgoingPendingRPC(guid, methodeName);
 		}
 
 		void AddMethodsWithAttribute()
@@ -119,32 +111,16 @@ namespace Ivyyy.Network
 			}
 		}
 
-		private void SetRPCCalls()
+		public bool ExecuteRPCCall(string rpcName)
 		{
-			//while (rpcStack.Count > 0)
-			//{
-			//	string tmp = "RPC" + rpcStack.Pop();
-			//	networkPackage.AddValue (new NetworkPackageValue (tmp));
-			//}
-		}
+			if (delegateDictionary.TryGetValue(rpcName, out var methodDelegate))
+			{
+				// Invoke the delegate if found
+				((Action)methodDelegate).Invoke();
+				return true;
+			}
 
-		private void ExecuteRPCCalls()
-		{
-			//for (int i = 0; i < networkPackage.Count; ++i)
-			//{
-			//	string tmp = networkPackage.Value (i).GetString();
-
-			//	if (tmp.Contains ("RPC"))
-			//	{
-			//		string name = tmp.Replace ("RPC", "");
-
-			//		if (delegateDictionary.TryGetValue(name, out var methodDelegate))
-			//		{
-			//			// Invoke the delegate if found
-			//			((Action)methodDelegate).Invoke();
-			//		}
-			//	}
-			//}
+			return false;
 		}
 	}
 }
