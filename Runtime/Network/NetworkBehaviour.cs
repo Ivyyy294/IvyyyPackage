@@ -61,21 +61,6 @@ namespace Ivyyy.Network
 			return ok;
 		}
 
-		public bool IsGuidValid()
-		{
-			return guid != null && guid.Length > 0;
-		}
-
-		public bool IsGuidUnique()
-		{
-			return !guidMap.ContainsKey (guid) || (guidMap.ContainsKey (guid) && guidMap[guid] == this);
-		}
-
-		public void GenerateGuid()
-		{
-			guid = System.Guid.NewGuid().ToString();
-		}
-
 		public void AddMethodsWithAttribute()
 		{
 			Type type = GetType();
@@ -90,6 +75,11 @@ namespace Ivyyy.Network
 					delegateDictionary[method.Name] = methodDelegate;
 				}
 			}
+		}
+
+		public void GenerateGuid()
+		{
+			guid = System.Guid.NewGuid().ToString();
 		}
 
 		//Protected

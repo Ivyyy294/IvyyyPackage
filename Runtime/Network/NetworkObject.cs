@@ -16,36 +16,31 @@ namespace Ivyyy.Network
 		private NetworkBehaviour[] networkBehaviours;
 		private NetworkPackage package = new NetworkPackage();
 
-		// Start is called before the first frame update
-        void Start()
-        {
-			// Don't do anything when in prefab mode
-			if  (gameObject.scene.name == null)
+		//Keeps track of all guids
+		static Dictionary <string, string> guidMap = new Dictionary<string, string>();
+
+		private void Start()
+		{
+			if (!Application.isPlaying)
 				return;
 
 			networkBehaviours = GetComponents <NetworkBehaviour>();
-			
+
 			foreach (NetworkBehaviour i in networkBehaviours)
-			{
-				if (i.IsGuidValid() && i.IsGuidUnique() && !NetworkBehaviour.guidMap.ContainsKey (i.GUID))
-					NetworkBehaviour.guidMap.Add (i.GUID, i);
-			}
-        }
+				NetworkBehaviour.guidMap.Add (i.GUID, i);
+		}
 
 		void OnDestroy()
 		{
-			//// Don't do anything when in prefab mode
-			//if  (gameObject.scene.name == null)
-			//	return;
-
-			//if (networkBehaviours != null)
-			//{
-			//	foreach (NetworkBehaviour i in networkBehaviours)
-			//	{
-			//		if (NetworkBehaviour.guidMap.ContainsKey (i.GUID))
-			//			NetworkBehaviour.guidMap.Remove (i.GUID);
-			//	}
-			//}
+			// Don't do anything when running the game or in prefab mode
+			if (Application.isPlaying)
+			{
+				if (networkBehaviours != null)
+				{
+					foreach (NetworkBehaviour i in networkBehaviours)
+						NetworkBehaviour.guidMap.Remove(i.GUID);
+				}
+			}
 		}
 
 #if UNITY_EDITOR
@@ -55,23 +50,39 @@ namespace Ivyyy.Network
 			if (Application.isPlaying)
 				return;
 
-			if  (gameObject.scene.name == null)
+			if  (gameObject.scene.path == null)
 				return;
 
 			networkBehaviours = GetComponents <NetworkBehaviour>();
 
-			foreach (NetworkBehaviour i in networkBehaviours)
+			for (int i = 0; i < networkBehaviours.Length; ++i)
 			{
-				if (!i.IsGuidValid() || !i.IsGuidUnique())
-				{
-					do {i.GenerateGuid();}
-					while (!i.IsGuidUnique());
+				NetworkBehaviour networkBehaviour = networkBehaviours[i];
+				string name = gameObject.scene.name + gameObject.name + i;
 
-					NetworkBehaviour.guidMap.Add (i.GUID, i);
-					EditorUtility.SetDirty (this);
-					EditorSceneManager.MarkSceneDirty (gameObject.scene);
+				if (!IsGuidValid(networkBehaviour) || GuidContracted(networkBehaviour, name))
+				{
+					networkBehaviour.GenerateGuid();
+
+					EditorUtility.SetDirty(networkBehaviour);
+					EditorSceneManager.MarkSceneDirty(gameObject.scene);
 				}
+
+				if (!guidMap.ContainsKey (networkBehaviour.GUID))
+					guidMap.Add (networkBehaviour.GUID, name);
 			}
+		}
+		
+		public bool IsGuidValid(NetworkBehaviour networkBehaviour)
+		{
+			return networkBehaviour.GUID != null && networkBehaviour.GUID.Length > 0;
+		}
+
+		public bool GuidContracted (NetworkBehaviour networkBehaviour, string name)
+		{
+			return IsGuidValid (networkBehaviour)
+				&& guidMap.ContainsKey (networkBehaviour.GUID)
+				&& guidMap[networkBehaviour.GUID] != name;
 		}
 #endif
 	}
