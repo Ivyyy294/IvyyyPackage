@@ -9,7 +9,7 @@ namespace Ivyyy.Network
 {
 	class NetworkManagerHostState : NetworkManagerState
 	{
-		List <NetworkUdpClientThread> clientList = new List<NetworkUdpClientThread>();
+		List <NetworkClientThread> clientList = new List<NetworkClientThread>();
 		Socket clientAcceptSocket = null;
 		Thread clientAcceptThread;
 
@@ -40,8 +40,30 @@ namespace Ivyyy.Network
 			byte[] data = networkPackage.GetSerializedData();
 
 			//Sent the data of all NetworkObjects to all clients
-			foreach (NetworkUdpClientThread client in clientList)
-				client.SendData (data);
+			foreach (NetworkClientThread client in clientList)
+				client.SendUDPData (data);
+
+			//Send TCP Data
+			if (NetworkRPC.outgoingRpcStack.Count > 0 || NetworkRPC.pendingRpcStack.Count > 0)
+			{
+				networkPackage.Clear();
+
+				//Add outgoing Rpc to stack
+				while (NetworkRPC.outgoingRpcStack.Count > 0)
+					networkPackage.AddValue (new NetworkPackageValue (NetworkRPC.outgoingRpcStack.Pop().GetSerializedData()));
+
+				//Execute pendingRpc and add it to package
+				while (NetworkRPC.pendingRpcStack.Count > 0)
+				{
+					NetworkRPC pendingRPC = (NetworkRPC.pendingRpcStack.Pop());
+					NetworkRPC.ExecutePendingRPC (pendingRPC);
+					networkPackage.AddValue (new NetworkPackageValue (pendingRPC.GetSerializedData()));
+				}
+
+				//Sent the data of all NetworkObjects to all clients
+				foreach (NetworkClientThread client in clientList)
+					client.SendTCPData (networkPackage.GetSerializedData());
+			}
 		}
 
 		public override void ShutDown()
@@ -50,7 +72,7 @@ namespace Ivyyy.Network
 			CloseSocket (clientAcceptSocket);
 
 			//Close all client sockets
-			foreach (NetworkUdpClientThread client in clientList)
+			foreach (NetworkClientThread client in clientList)
 				client.Shutdown();
 
 			//Wait for Threads to finish
@@ -90,7 +112,7 @@ namespace Ivyyy.Network
 					Debug.Log ("Client connected. " + client.ToString()
 							+ ", IPEndpoint: " + client.RemoteEndPoint.ToString());
 
-					NetworkUdpClientThread handleClient = new NetworkUdpClientThread(client);
+					NetworkClientThread handleClient = new NetworkClientThread(client);
 					handleClient.Start();
 					clientList.Add (handleClient);
 

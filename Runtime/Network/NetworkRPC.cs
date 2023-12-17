@@ -9,8 +9,8 @@ namespace Ivyyy.Network
 {
 	class NetworkRPC
 	{
-		public static Stack <NetworkRPC> outgoingRpcStack;
-		public static Stack <NetworkRPC> pendingRpcStack;
+		public static Stack <NetworkRPC> outgoingRpcStack = new Stack<NetworkRPC>();
+		public static Stack <NetworkRPC> pendingRpcStack = new Stack<NetworkRPC>();
 		public string guid;
 		public string methodName;
 
@@ -43,19 +43,20 @@ namespace Ivyyy.Network
 		public static void ExecutePendingRPC()
 		{
 			while (pendingRpcStack.Count > 0)
+				ExecutePendingRPC (pendingRpcStack.Pop());
+		}
+
+		public static void ExecutePendingRPC (NetworkRPC currentRpc)
+		{
+			if (NetworkBehaviour.guidMap.ContainsKey (currentRpc.guid))
 			{
-				NetworkRPC currentRpc = pendingRpcStack.Pop();
+				NetworkBehaviour networkBehaviour = NetworkBehaviour.guidMap[currentRpc.guid];
 
-				if (NetworkBehaviour.guidMap.ContainsKey (currentRpc.guid))
-				{
-					NetworkBehaviour networkBehaviour = NetworkBehaviour.guidMap[currentRpc.guid];
-
-					if (!networkBehaviour.ExecuteRPCCall (currentRpc.methodName))
-						Debug.LogError ("Invalid RPC Method!");
-				}
-				else
-					Debug.LogError ("Invalid RPC GUID!");
+				if (!networkBehaviour.Owner && !networkBehaviour.ExecuteRPCCall (currentRpc.methodName))
+					Debug.LogError ("Invalid RPC Method!");
 			}
+			else
+				Debug.LogError ("Invalid RPC GUID!");
 		}
 	}
 }

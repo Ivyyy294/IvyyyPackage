@@ -11,7 +11,7 @@ namespace Ivyyy.Network
 	{
 		private string ip;
 		Socket socket = null;
-		NetworkUdpClientThread udpClientThread = null;
+		NetworkClientThread clientThread = null;
 
 		public NetworkManagerClientState (string _ip) {ip = _ip;}
 		~NetworkManagerClientState()
@@ -34,8 +34,8 @@ namespace Ivyyy.Network
 					NetworkManager.Me.onConnectedToHost (socket);
 
 				//Start listener thread
-				udpClientThread = new NetworkUdpClientThread (socket);
-				udpClientThread.Start();
+				clientThread = new NetworkClientThread (socket);
+				clientThread.Start();
 			}
 
 			return ok;
@@ -44,15 +44,18 @@ namespace Ivyyy.Network
 		public override void Update()
 		{
 			if (socket != null && socket.Connected)
+			{
+				NetworkRPC.ExecutePendingRPC();
 				SendData();
+			}
 		}
 
 		public override void ShutDown()
 		{
 			CloseSocket (socket);
 
-			if (udpClientThread != null)
-				udpClientThread.Shutdown();
+			if (clientThread != null)
+				clientThread.Shutdown();
 		}
 
 		void SendData()
@@ -69,7 +72,18 @@ namespace Ivyyy.Network
 					networkPackage.AddValue (GetNetObjectAsValue (networkObject));
 			}
 
-			udpClientThread.SendData (networkPackage.GetSerializedData());
+			clientThread.SendUDPData (networkPackage.GetSerializedData());
+
+			//Send TCP Data
+			if (NetworkRPC.outgoingRpcStack.Count > 0)
+			{
+				networkPackage.Clear();
+
+				while (NetworkRPC.outgoingRpcStack.Count > 0)
+					networkPackage.AddValue (new NetworkPackageValue (NetworkRPC.outgoingRpcStack.Pop().GetSerializedData()));
+
+				clientThread.SendTCPData (networkPackage.GetSerializedData());
+			}
 		}
 
 		Socket GetClientSocket (string ip)

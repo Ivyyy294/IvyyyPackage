@@ -26,6 +26,6 @@ namespace Ivyyy.Network
 		}
 
 		protected abstract void ReceiveData();
-		public abstract bool SendData (byte[] data);
+		public abstract bool SendUDPData (byte[] data);
 	}
 }
