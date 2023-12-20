@@ -19,6 +19,7 @@ namespace Ivyyy.Network
 
 		//Returns the count of NetworkPackageValues
 		public int Count { get {return valueList.Count;} }
+		public bool Available { get { return valueList.Count > 0;} }
 
 		//Sets the value of an existing NetworkPackageValue
 		public void AddValue(NetworkPackageValue val)
