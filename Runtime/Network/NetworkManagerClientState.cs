@@ -52,8 +52,6 @@ namespace Ivyyy.Network
 
 		public override void ShutDown()
 		{
-			CloseSocket (socket);
-
 			if (clientThread != null)
 				clientThread.Shutdown();
 		}

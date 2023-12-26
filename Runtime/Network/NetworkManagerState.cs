@@ -39,19 +39,6 @@ namespace Ivyyy.Network
 		}
 
 		//Protected Methods
-		protected void CloseSocket (Socket socket)
-		{
-			if (socket != null)
-			{
-				if (socket.Connected) 
-					socket.Shutdown(SocketShutdown.Both);
-
-				socket.Close();
-				socket.Dispose();
-				socket = null;
-			}
-		}
-
 		//encapsules the given NetworkObject with the given index into a NetworkPackageValue
 		protected NetworkPackageValue GetNetObjectAsValue (NetworkBehaviour netObject)
 		{

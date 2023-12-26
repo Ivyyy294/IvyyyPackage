@@ -30,7 +30,15 @@ namespace Ivyyy.Network
 		public override void ShutDown()
 		{
 			//Close accept socket
-			CloseSocket (clientAcceptSocket);
+			if (clientAcceptSocket != null)
+			{
+				if (clientAcceptSocket.Connected) 
+					clientAcceptSocket.Shutdown(SocketShutdown.Both);
+
+				clientAcceptSocket.Close();
+				clientAcceptSocket.Dispose();
+				clientAcceptSocket = null;
+			}
 
 			//Close all client sockets
 			foreach (NetworkClientThread client in clientList)

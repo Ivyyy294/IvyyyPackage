@@ -68,6 +68,8 @@ namespace Ivyyy.Network
 				Debug.Log (e);
 				Status = ConnectionStatus.DISCONNECTED;
 			}
+
+			CloseSocket();
 		}
 
 		public override bool SendUDPData (byte[] data)
@@ -102,5 +104,26 @@ namespace Ivyyy.Network
 				return false;
 			}
 		}
+
+		private void CloseSocket ()
+		{
+			if (tcpSocket != null)
+			{
+				if (tcpSocket.Connected) 
+					tcpSocket.Shutdown(SocketShutdown.Both);
+
+				tcpSocket.Close();
+				tcpSocket.Dispose();
+			}
+
+			if (udpClient != null)
+			{
+				udpClient.Close();
+				udpClient.Dispose();
+			}
+
+			Debug.Log ("Sockets closed!");
+		}
 	}
+
 }
