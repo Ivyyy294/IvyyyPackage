@@ -7,13 +7,21 @@ namespace Ivyyy.Network
 {
 	class NetworkClientThread : NetworkWorkerThread
 	{
+		public enum ConnectionStatus
+		{
+			DISCONNECTED,
+			CONNECTED,
+			TIME_OUT
+		}
+
 		IPEndPoint serverEndPoint = null;
 		IPEndPoint localEndPoint = null;
 		UdpClient udpClient = null;
 		Socket tcpSocket = null;
 		NetworkPackage networkPackage = new NetworkPackage();
 
-		public bool Connected {get; private set; }
+		public ConnectionStatus Status {get; private set; }
+		public Socket TcpSocket {get{return tcpSocket; } }
 
 		public NetworkClientThread (Socket socket)
 		{
@@ -21,7 +29,7 @@ namespace Ivyyy.Network
 			serverEndPoint = (IPEndPoint) socket.RemoteEndPoint;
 			localEndPoint = (IPEndPoint) socket.LocalEndPoint;
 			udpClient = new UdpClient(localEndPoint.Port);
-			Connected = true;
+			Status = socket.Connected ? ConnectionStatus.CONNECTED : ConnectionStatus.DISCONNECTED;
 		}
 
 		protected override void ReceiveData()
@@ -58,9 +66,8 @@ namespace Ivyyy.Network
 			catch (Exception e)
 			{
 				Debug.Log (e);
+				Status = ConnectionStatus.DISCONNECTED;
 			}
-
-			Connected = false;
 		}
 
 		public override bool SendUDPData (byte[] data)

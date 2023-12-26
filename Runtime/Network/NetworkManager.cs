@@ -9,24 +9,25 @@ namespace Ivyyy.Network
 		//Serialized Values
 		[SerializeField] int port = 23000;
 		//Host + 3 clients = 4  players
-		[SerializeField] int maxClients = 3;
 		[SerializeField] int tickRate = 30;
 
 		//Public Values
 		public static NetworkManager Me {get; private set;}
 		public int Port { get {return port;} }
-		public int MaxClients {get {return maxClients;}}
 		public bool Host { get {return host;} }
 
 		//Delegates
-		public delegate bool AcceptClient (int clientNumber, Socket socket);
-		public AcceptClient acceptClient = null;
+		public delegate void SocketDelegate (Socket socket);
+		public delegate bool AcceptClient (Socket socket);
 
-		public delegate void OnClientConnected (int clientNumber, Socket socket);
-		public OnClientConnected onClientConnected = null;
+		//Client
+		public SocketDelegate onConnectedToHost = null;
 
-		public delegate void OnConnectedToHost (Socket socket);
-		public OnConnectedToHost onConnectedToHost = null;
+		//Host
+		public AcceptClient acceptClient = null; //True accept / False reject
+		public SocketDelegate onClientConnected = null;
+		public SocketDelegate onClientDisonnected = null;
+		public SocketDelegate onClientTimeOut = null;
 
 		//Private Values
 		bool host = false;

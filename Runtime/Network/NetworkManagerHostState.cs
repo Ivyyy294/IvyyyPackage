@@ -22,13 +22,7 @@ namespace Ivyyy.Network
 
 		public override void Update()
 		{
-			//Remove disconnected clients
-			foreach (NetworkClientThread client in clientList)
-			{
-				if (!client.Connected)
-					clientList.Remove (client);
-			}
-
+			CheckClientStatus();
 			SendUPDData();
 			SendTCPData();
 		}
@@ -89,6 +83,34 @@ namespace Ivyyy.Network
 					client.SendTCPData (networkPackage.GetSerializedData());
 			}
 		}
+		
+		void CheckClientStatus()
+		{
+			List <NetworkClientThread> invalidClientList = new List<NetworkClientThread>();
+
+			//Find invalid client connection
+			foreach (NetworkClientThread client in clientList)
+			{
+				if (client.Status != NetworkClientThread.ConnectionStatus.CONNECTED)
+					invalidClientList.Add (client);
+			}
+
+			foreach (NetworkClientThread client in invalidClientList)
+			{
+				if (client.Status == NetworkClientThread.ConnectionStatus.DISCONNECTED)
+				{
+					NetworkManager.Me.onClientDisonnected?.Invoke(client.TcpSocket);
+					Debug.Log ("Client disconnected!");
+				}
+				else if (client.Status == NetworkClientThread.ConnectionStatus.TIME_OUT)
+				{
+					NetworkManager.Me.onClientTimeOut?.Invoke(client.TcpSocket);
+					Debug.Log ("Client timed-out!");
+				}
+
+				clientList.Remove (client);
+			}
+		}
 
 		Socket GetHostSocket ()
 		{
@@ -124,15 +146,13 @@ namespace Ivyyy.Network
 
 				//Check if server accepts clients
 				if (NetworkManager.Me.acceptClient == null
-					|| NetworkManager.Me.acceptClient (clientList.Count + 1, client))
+					|| NetworkManager.Me.acceptClient (client))
 				{
 					NetworkClientThread handleClient = new NetworkClientThread(client);
 					handleClient.Start();
 					clientList.Add (handleClient);
 
-					//clientList is 1 short of player list so clientList.Count is equal to client index
-					if (NetworkManager.Me.onClientConnected != null)
-						NetworkManager.Me.onClientConnected (clientList.Count, client);
+					NetworkManager.Me.onClientConnected?.Invoke(client);
 				}
 			}
 			catch (Exception e)
