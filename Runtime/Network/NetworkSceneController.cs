@@ -41,9 +41,6 @@ namespace Ivyyy.Network
 		// Update is called once per frame
 		void Update()
 		{
-			if (networkManager.Host && !Owner)
-				Owner = true;
-
 			if (!Owner && networkPackage.Available)
 				currentScene = networkPackage.Value(0).GetInt32();
 
