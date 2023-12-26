@@ -18,6 +18,10 @@ namespace Ivyyy.Network
 		public int MaxClients {get {return maxClients;}}
 		public bool Host { get {return host;} }
 
+		//Delegates
+		public delegate bool AcceptClient (int clientNumber, Socket socket);
+		public AcceptClient acceptClient = null;
+
 		public delegate void OnClientConnected (int clientNumber, Socket socket);
 		public OnClientConnected onClientConnected = null;
 

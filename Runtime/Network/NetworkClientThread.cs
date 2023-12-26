@@ -13,12 +13,15 @@ namespace Ivyyy.Network
 		Socket tcpSocket = null;
 		NetworkPackage networkPackage = new NetworkPackage();
 
+		public bool Connected {get; private set; }
+
 		public NetworkClientThread (Socket socket)
 		{
 			tcpSocket = socket;
 			serverEndPoint = (IPEndPoint) socket.RemoteEndPoint;
 			localEndPoint = (IPEndPoint) socket.LocalEndPoint;
 			udpClient = new UdpClient(localEndPoint.Port);
+			Connected = true;
 		}
 
 		protected override void ReceiveData()
@@ -56,6 +59,8 @@ namespace Ivyyy.Network
 			{
 				Debug.Log (e);
 			}
+
+			Connected = false;
 		}
 
 		public override bool SendUDPData (byte[] data)

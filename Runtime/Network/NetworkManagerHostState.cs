@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using UnityEngine;
 
 namespace Ivyyy.Network
@@ -11,20 +10,42 @@ namespace Ivyyy.Network
 	{
 		List <NetworkClientThread> clientList = new List<NetworkClientThread>();
 		Socket clientAcceptSocket = null;
-		Thread clientAcceptThread;
 
 		public override bool Start()
 		{
 			clientAcceptSocket = GetHostSocket();
 
-			//Start accept thread
-			clientAcceptThread = new Thread (AcceptClients);
-			clientAcceptThread.Start();
+			clientAcceptSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
 
 			return clientAcceptSocket != null;
 		}
 
 		public override void Update()
+		{
+			//Remove disconnected clients
+			foreach (NetworkClientThread client in clientList)
+			{
+				if (!client.Connected)
+					clientList.Remove (client);
+			}
+
+			SendUPDData();
+			SendTCPData();
+		}
+
+		public override void ShutDown()
+		{
+			//Close accept socket
+			CloseSocket (clientAcceptSocket);
+
+			//Close all client sockets
+			foreach (NetworkClientThread client in clientList)
+				client.Shutdown();
+		}
+
+
+		//Private Methods
+		void SendUPDData()
 		{
 			 networkPackage.Clear();
 
@@ -42,7 +63,10 @@ namespace Ivyyy.Network
 			//Sent the data of all NetworkObjects to all clients
 			foreach (NetworkClientThread client in clientList)
 				client.SendUDPData (data);
+		}
 
+		void SendTCPData()
+		{
 			//Send TCP Data
 			if (NetworkRPC.outgoingRpcStack.Count > 0 || NetworkRPC.pendingRpcStack.Count > 0)
 			{
@@ -66,22 +90,6 @@ namespace Ivyyy.Network
 			}
 		}
 
-		public override void ShutDown()
-		{
-			//Close accept socket
-			CloseSocket (clientAcceptSocket);
-
-			//Close all client sockets
-			foreach (NetworkClientThread client in clientList)
-				client.Shutdown();
-
-			//Wait for Threads to finish
-			clientAcceptThread.Join();
-		}
-
-
-		//Private Methods
-
 		Socket GetHostSocket ()
 		{
 			//Create TCP Socket
@@ -102,16 +110,22 @@ namespace Ivyyy.Network
 
 		//Method of clientAcceptThread
 		//Creates a new HandleClient Thread for each Client
-		void AcceptClients ()
+		void AcceptCallback (IAsyncResult ar)
 		{
 			try
 			{
-				while (clientList.Count < NetworkManager.Me.MaxClients)
-				{
-					Socket client = clientAcceptSocket.Accept();
-					Debug.Log ("Client connected. " + client.ToString()
-							+ ", IPEndpoint: " + client.RemoteEndPoint.ToString());
+				Socket client = clientAcceptSocket.EndAccept(ar);
 
+				 // Start accepting the next connection asynchronously
+				clientAcceptSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
+
+				Debug.Log ("Client connected. " + client.ToString()
+						+ ", IPEndpoint: " + client.RemoteEndPoint.ToString());
+
+				//Check if server accepts clients
+				if (NetworkManager.Me.acceptClient == null
+					|| NetworkManager.Me.acceptClient (clientList.Count + 1, client))
+				{
 					NetworkClientThread handleClient = new NetworkClientThread(client);
 					handleClient.Start();
 					clientList.Add (handleClient);
