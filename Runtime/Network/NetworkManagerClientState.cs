@@ -10,7 +10,6 @@ namespace Ivyyy.Network
 	class NetworkManagerClientState : NetworkManagerState
 	{
 		private string ip;
-		Socket socket = null;
 		NetworkClientThread clientThread = null;
 
 		public NetworkManagerClientState (string _ip) {ip = _ip;}
@@ -22,7 +21,7 @@ namespace Ivyyy.Network
 		public override bool Start()
 		{
 			//Create client Socket
-			socket = GetClientSocket (ip);
+			Socket socket = GetClientSocket (ip);
 
 			bool ok = socket != null && socket.Connected;
 
@@ -43,10 +42,15 @@ namespace Ivyyy.Network
 
 		public override void Update()
 		{
-			if (socket != null && socket.Connected)
+			if (clientThread.IsRunning)
 			{
-				NetworkRPC.ExecutePendingRPC();
-				SendData();
+				if (clientThread.Status == NetworkClientThread.ConnectionStatus.CONNECTED)
+				{
+					NetworkRPC.ExecutePendingRPC();
+					SendData();
+				}
+				else
+					CheckHostStatus();
 			}
 		}
 
@@ -101,6 +105,22 @@ namespace Ivyyy.Network
 			catch (Exception excp)
 			{
 				return null;
+			}
+		}
+
+		void CheckHostStatus()
+		{
+			if (clientThread.Status == NetworkClientThread.ConnectionStatus.DISCONNECTED)
+			{
+				NetworkManager.Me.onClientDisonnected?.Invoke(clientThread.TcpSocket);
+				clientThread.Shutdown();
+				Debug.Log ("Client disconnected!");
+			}
+			else if (clientThread.Status == NetworkClientThread.ConnectionStatus.TIME_OUT)
+			{
+				NetworkManager.Me.onClientTimeOut?.Invoke(clientThread.TcpSocket);
+				clientThread.Shutdown();
+				Debug.Log ("Client timed-out!");
 			}
 		}
 	}

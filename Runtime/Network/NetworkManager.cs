@@ -10,11 +10,13 @@ namespace Ivyyy.Network
 		[SerializeField] int port = 23000;
 		//Host + 3 clients = 4  players
 		[SerializeField] int tickRate = 30;
+		[SerializeField] long timeout = 5000; //Timeout after 5 seconds
 
 		//Public Values
 		public static NetworkManager Me {get; private set;}
 		public int Port { get {return port;} }
 		public bool Host { get {return host;} }
+		public long Timeout { get { return timeout;} }
 
 		//Delegates
 		public delegate void SocketDelegate (Socket socket);
@@ -22,6 +24,8 @@ namespace Ivyyy.Network
 
 		//Client
 		public SocketDelegate onConnectedToHost = null;
+		public SocketDelegate onHostDisonnected = null;
+		public SocketDelegate onHostTimeOut = null;
 
 		//Host
 		public AcceptClient acceptClient = null; //True accept / False reject

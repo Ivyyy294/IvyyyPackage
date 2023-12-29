@@ -11,6 +11,7 @@ namespace Ivyyy.Network
 	{
 		private Thread thread = null;
 		protected bool shutdown = false;
+		public bool IsRunning { get { return !shutdown;} }
 
 		public void Start()
 		{

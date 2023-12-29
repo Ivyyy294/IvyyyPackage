@@ -19,6 +19,7 @@ namespace Ivyyy.Network
 		UdpClient udpClient = null;
 		Socket tcpSocket = null;
 		NetworkPackage networkPackage = new NetworkPackage();
+		long lastPackageTimestamp;
 
 		public ConnectionStatus Status {get; private set; }
 		public Socket TcpSocket {get{return tcpSocket; } }
@@ -30,6 +31,7 @@ namespace Ivyyy.Network
 			localEndPoint = (IPEndPoint) socket.LocalEndPoint;
 			udpClient = new UdpClient(localEndPoint.Port);
 			Status = socket.Connected ? ConnectionStatus.CONNECTED : ConnectionStatus.DISCONNECTED;
+			lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 		}
 
 		protected override void ReceiveData()
@@ -41,6 +43,8 @@ namespace Ivyyy.Network
 					//UDP Packages
 					if (udpClient.Available > 0)
 					{
+						lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
 						byte[] data = udpClient.Receive (ref serverEndPoint);
 						networkPackage.DeserializeData (data);
 
@@ -52,6 +56,8 @@ namespace Ivyyy.Network
 					//TCP Packages
 					if (tcpSocket.Available > 0)
 					{
+						lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
 						byte[] buffer = new byte[4096];
 						int byteReceived = tcpSocket.Receive (buffer);
 						byte[] data = new byte [byteReceived];
@@ -60,6 +66,12 @@ namespace Ivyyy.Network
 
 						for (int i = 0; i < networkPackage.Count; ++i)
 							NetworkRPC.AddFromSerializedData (networkPackage.Value(i).GetBytes());
+					}
+
+					if (Ping() >= NetworkManager.Me.Timeout)
+					{
+						Status = ConnectionStatus.TIME_OUT;
+						break;
 					}
 				}
 			}
@@ -103,6 +115,11 @@ namespace Ivyyy.Network
 				Debug.Log (e);
 				return false;
 			}
+		}
+
+		public long Ping()
+		{
+			return DateTimeOffset.Now.ToUnixTimeMilliseconds() - lastPackageTimestamp;
 		}
 
 		private void CloseSocket ()
