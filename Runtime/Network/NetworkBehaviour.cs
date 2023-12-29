@@ -23,7 +23,7 @@ namespace Ivyyy.Network
 
 		//Protected
 		protected NetworkPackage networkPackage;
-		protected bool Host { get { return NetworkManager.Me.Host; } }
+		protected bool Host { get { return !NetworkManager.Me || NetworkManager.Me.Host; } }
 
 		//RPC
 		private Dictionary<string, Delegate> delegateDictionary = new Dictionary<string, Delegate>();
