@@ -32,8 +32,10 @@ namespace Ivyyy.Network
 				if (NetworkManager.Me.onConnectedToHost != null)
 					NetworkManager.Me.onConnectedToHost (socket);
 
+				int serverUdpPort = GetUDPPortFromServer (socket);
+
 				//Start listener thread
-				clientThread = new NetworkClientThread (socket);
+				clientThread = new NetworkClientThread (socket, ((IPEndPoint) socket.LocalEndPoint).Port, serverUdpPort);
 				clientThread.Start();
 			}
 
@@ -122,6 +124,13 @@ namespace Ivyyy.Network
 				clientThread.Shutdown();
 				Debug.Log ("Client timed-out!");
 			}
+		}
+
+		int GetUDPPortFromServer(Socket server)
+		{
+			byte[] buffer = new byte[sizeof(int)];
+			server.Receive (buffer);
+			return BitConverter.ToInt32 (buffer, 0);
 		}
 	}
 }

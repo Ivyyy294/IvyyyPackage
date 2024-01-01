@@ -10,6 +10,7 @@ namespace Ivyyy.Network
 	{
 		List <NetworkClientThread> clientList = new List<NetworkClientThread>();
 		Socket clientAcceptSocket = null;
+		int updPort = 23001;
 
 		public override bool Start()
 		{
@@ -142,12 +143,12 @@ namespace Ivyyy.Network
 		//Creates a new HandleClient Thread for each Client
 		void AcceptCallback (IAsyncResult ar)
 		{
+			// Start accepting the next connection asynchronously
+			clientAcceptSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
+			
 			try
 			{
 				Socket client = clientAcceptSocket.EndAccept(ar);
-
-				 // Start accepting the next connection asynchronously
-				clientAcceptSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
 
 				Debug.Log ("Client connected. " + client.ToString()
 						+ ", IPEndpoint: " + client.RemoteEndPoint.ToString());
@@ -156,17 +157,27 @@ namespace Ivyyy.Network
 				if (NetworkManager.Me.acceptClient == null
 					|| NetworkManager.Me.acceptClient (client))
 				{
-					NetworkClientThread handleClient = new NetworkClientThread(client);
+					Debug.Log("Client Accepted!");
+
+					SendUDPPortToClient(client);
+
+					NetworkClientThread handleClient = new NetworkClientThread(client, updPort++, ((IPEndPoint) client.RemoteEndPoint).Port);
 					handleClient.Start();
 					clientList.Add (handleClient);
 
 					NetworkManager.Me.onClientConnected?.Invoke(client);
 				}
+
 			}
 			catch (Exception e)
 			{
-				Debug.Log (e);
+				Debug.Log(e);
 			}
+		}
+
+		void SendUDPPortToClient (Socket client)
+		{
+			client.Send(BitConverter.GetBytes (updPort));
 		}
 	}
 }

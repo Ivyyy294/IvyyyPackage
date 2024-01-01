@@ -15,7 +15,6 @@ namespace Ivyyy.Network
 		}
 
 		IPEndPoint serverEndPoint = null;
-		IPEndPoint localEndPoint = null;
 		UdpClient udpClient = null;
 		Socket tcpSocket = null;
 		NetworkPackage networkPackage = new NetworkPackage();
@@ -24,12 +23,14 @@ namespace Ivyyy.Network
 		public ConnectionStatus Status {get; private set; }
 		public Socket TcpSocket {get{return tcpSocket; } }
 
-		public NetworkClientThread (Socket socket)
+		public NetworkClientThread (Socket socket, int udpPortLocal, int updPortRemote)
 		{
+			Debug.Log("udpPortLocal: " + udpPortLocal + " updPortRemote: " + updPortRemote);
+
 			tcpSocket = socket;
 			serverEndPoint = (IPEndPoint) socket.RemoteEndPoint;
-			localEndPoint = (IPEndPoint) socket.LocalEndPoint;
-			udpClient = new UdpClient(localEndPoint.Port);
+			serverEndPoint.Port = updPortRemote;
+			udpClient = new UdpClient(udpPortLocal);
 			Status = socket.Connected ? ConnectionStatus.CONNECTED : ConnectionStatus.DISCONNECTED;
 			lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 		}
@@ -38,6 +39,8 @@ namespace Ivyyy.Network
 		{
 			try
 			{
+				IPEndPoint remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
+
 				while (!shutdown)
 				{
 					//UDP Packages
@@ -45,7 +48,7 @@ namespace Ivyyy.Network
 					{
 						lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
-						byte[] data = udpClient.Receive (ref serverEndPoint);
+						byte[] data = udpClient.Receive (ref remoteIpEndPoint);
 						networkPackage.DeserializeData (data);
 
 						//For each Value in networkPackage
@@ -68,9 +71,10 @@ namespace Ivyyy.Network
 							NetworkRPC.AddFromSerializedData (networkPackage.Value(i).GetBytes());
 					}
 
-					if (Ping() >= NetworkManager.Me.Timeout)
+					if (TimeOut())
 					{
 						Status = ConnectionStatus.TIME_OUT;
+						Debug.Log ("Time out!");
 						break;
 					}
 				}
@@ -120,6 +124,14 @@ namespace Ivyyy.Network
 		public long Ping()
 		{
 			return DateTimeOffset.Now.ToUnixTimeMilliseconds() - lastPackageTimestamp;
+		}
+
+		private bool TimeOut()
+		{
+			if (NetworkManager.Me.Timeout <= 0)
+				return false;
+			
+			return Ping() > NetworkManager.Me.Timeout;
 		}
 
 		private void CloseSocket ()
