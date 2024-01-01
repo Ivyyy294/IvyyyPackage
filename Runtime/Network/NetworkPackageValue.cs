@@ -36,6 +36,16 @@ namespace Ivyyy.Network
 			SetValue (buffer);
 		}
 
+		public NetworkPackageValue (Quaternion val)
+		{
+			byte[] buffer = new byte [sizeof (float) * 4];
+			Buffer.BlockCopy (BitConverter.GetBytes(val.x), 0, buffer, 0, 4);
+			Buffer.BlockCopy (BitConverter.GetBytes(val.y), 0, buffer, 4, 4);
+			Buffer.BlockCopy (BitConverter.GetBytes(val.z), 0, buffer, 8, 4);
+			Buffer.BlockCopy (BitConverter.GetBytes(val.w), 0, buffer, 12, 4);
+			SetValue (buffer);
+		}
+
 		public short GetShort() {return BitConverter.ToInt16 (value, StartIndex);}
 		public ushort GetUShort() {return BitConverter.ToUInt16 (value, StartIndex);}
 		public int GetInt32() {return BitConverter.ToInt32 (value, StartIndex);}
@@ -58,6 +68,16 @@ namespace Ivyyy.Network
 			float z = BitConverter.ToSingle (value, StartIndex + 8);
 
 			return new Vector3 (x, y, z);
+		}
+
+		public Quaternion GetQuaternion()
+		{
+			float x = BitConverter.ToSingle (value, StartIndex);
+			float y = BitConverter.ToSingle (value, StartIndex + 4);
+			float z = BitConverter.ToSingle (value, StartIndex + 8);
+			float w = BitConverter.ToSingle (value, StartIndex + 12);
+
+			return new Quaternion (x, y, z, w);
 		}
 
 		//Reserves requiered memory
