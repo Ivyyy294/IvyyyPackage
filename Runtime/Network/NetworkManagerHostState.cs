@@ -156,17 +156,15 @@ namespace Ivyyy.Network
 				{
 					Debug.Log("Client Accepted!");
 
-					SendUDPPortToClient(client);
+					int serverPort = updPort++;
+					int clientport = ExchangeUDPPorts(client, serverPort);
 
-					NetworkClientThread handleClient = new NetworkClientThread(client, updPort, ((IPEndPoint) client.RemoteEndPoint).Port);
-					++updPort;
+					NetworkClientThread handleClient = new NetworkClientThread(client, serverPort, clientport);
 					handleClient.Start();
 					clientList.Add (handleClient);
 
 					NetworkManager.Me.onClientConnected?.Invoke(client);
-					Debug.Log ("Started client thread!");
 				}
-
 			}
 			catch (Exception e)
 			{
@@ -177,10 +175,15 @@ namespace Ivyyy.Network
 			clientAcceptSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
 		}
 
-		void SendUDPPortToClient (Socket client)
+		int ExchangeUDPPorts (Socket client, int serverPort)
 		{
-			Debug.Log("ClientPort: " + updPort);
-			client.Send(BitConverter.GetBytes (updPort));
+			//send Host Port
+			client.Send(BitConverter.GetBytes (serverPort));
+
+			//get client port
+			byte[] buffer = new byte[sizeof(int)];
+			client.Receive (buffer);
+			return BitConverter.ToInt32 (buffer, 0);
 		}
 	}
 }

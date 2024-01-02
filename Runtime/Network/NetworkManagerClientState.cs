@@ -32,10 +32,11 @@ namespace Ivyyy.Network
 				if (NetworkManager.Me.onConnectedToHost != null)
 					NetworkManager.Me.onConnectedToHost (socket);
 
-				int serverUdpPort = GetUDPPortFromServer (socket);
+				int clientPort = ((IPEndPoint) socket.LocalEndPoint).Port;
+				int serverUdpPort = ExchangeUDPPorts (socket, clientPort);
 
 				//Start listener thread
-				clientThread = new NetworkClientThread (socket, ((IPEndPoint) socket.LocalEndPoint).Port, serverUdpPort);
+				clientThread = new NetworkClientThread (socket, clientPort, serverUdpPort);
 				clientThread.Start();
 			}
 
@@ -126,11 +127,17 @@ namespace Ivyyy.Network
 			}
 		}
 
-		int GetUDPPortFromServer(Socket server)
+		int ExchangeUDPPorts(Socket server, int clientPort)
 		{
+			//Get host port
 			byte[] buffer = new byte[sizeof(int)];
 			server.Receive (buffer);
-			return BitConverter.ToInt32 (buffer, 0);
+			int serverPort = BitConverter.ToInt32 (buffer, 0);
+
+			//send Host Port
+			server.Send(BitConverter.GetBytes (clientPort));
+
+			return serverPort;
 		}
 	}
 }
