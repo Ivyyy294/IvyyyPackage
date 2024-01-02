@@ -30,20 +30,14 @@ namespace Ivyyy.Network
 
 		public override void ShutDown()
 		{
-			//Close accept socket
-			if (clientAcceptSocket != null)
-			{
-				if (clientAcceptSocket.Connected) 
-					clientAcceptSocket.Shutdown(SocketShutdown.Both);
-
-				clientAcceptSocket.Close();
-				clientAcceptSocket.Dispose();
-				clientAcceptSocket = null;
-			}
+			CloseSocket (clientAcceptSocket);
 
 			//Close all client sockets
 			foreach (NetworkClientThread client in clientList)
+			{
 				client.Shutdown();
+				CloseSocket (client.TcpSocket);
+			}
 		}
 
 
@@ -150,9 +144,14 @@ namespace Ivyyy.Network
 				Debug.Log ("Client connected. " + client.ToString()
 						+ ", IPEndpoint: " + client.RemoteEndPoint.ToString());
 
-				//Check if server accepts clients
-				if (NetworkManager.Me.acceptClient == null
-					|| NetworkManager.Me.acceptClient (client))
+				//Check if server accepts client
+				bool accepted = NetworkManager.Me.acceptClient == null || NetworkManager.Me.acceptClient (client);
+				
+				//Notify client
+				SendServerAcceptAnswer (client, accepted);
+
+				//Start client thread
+				if (accepted)
 				{
 					Debug.Log("Client Accepted!");
 
@@ -165,6 +164,8 @@ namespace Ivyyy.Network
 
 					NetworkManager.Me.onClientConnected?.Invoke(client);
 				}
+				else
+					CloseSocket (client);
 			}
 			catch (Exception e)
 			{
@@ -173,6 +174,11 @@ namespace Ivyyy.Network
 
 			// Start accepting the next connection asynchronously
 			clientAcceptSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
+		}
+
+		void SendServerAcceptAnswer (Socket client, bool accepted)
+		{
+			client.Send(BitConverter.GetBytes (accepted));
 		}
 
 		int ExchangeUDPPorts (Socket client, int serverPort)

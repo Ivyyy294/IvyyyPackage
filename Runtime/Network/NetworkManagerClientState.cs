@@ -23,7 +23,7 @@ namespace Ivyyy.Network
 			//Create client Socket
 			Socket socket = GetClientSocket (ip);
 
-			bool ok = socket != null && socket.Connected;
+			bool ok = socket != null;
 
 			if (ok)
 			{
@@ -39,6 +39,8 @@ namespace Ivyyy.Network
 				clientThread = new NetworkClientThread (socket, clientPort, serverUdpPort);
 				clientThread.Start();
 			}
+			else
+				Debug.Log ("Unable to connect!");
 
 			return ok;
 		}
@@ -60,7 +62,10 @@ namespace Ivyyy.Network
 		public override void ShutDown()
 		{
 			if (clientThread != null)
+			{
 				clientThread.Shutdown();
+				CloseSocket (clientThread.TcpSocket);
+			}
 		}
 
 		void SendData()
@@ -103,7 +108,18 @@ namespace Ivyyy.Network
 				//Cast input to IPAddress
 				iPAddress = IPAddress.Parse (ip);
 				clientSocket.Connect (iPAddress, NetworkManager.Me.Port);
-				return clientSocket;
+
+				if (clientSocket.Connected && ServerAcceptsClient (clientSocket))
+				{
+					Debug.Log("Server accepted!");
+					return clientSocket;
+				}
+				else
+				{
+					Debug.Log("Server rejected!");
+					CloseSocket (clientSocket);
+					return null;
+				}
 			}
 			catch (Exception excp)
 			{
@@ -125,6 +141,15 @@ namespace Ivyyy.Network
 				clientThread.Shutdown();
 				Debug.Log ("Client timed-out!");
 			}
+		}
+
+		//Handshake
+		bool ServerAcceptsClient (Socket server)
+		{
+			//Get confirmation from server
+			byte[] buffer = new byte[sizeof(bool)];
+			server.Receive (buffer);
+			return BitConverter.ToBoolean (buffer, 0);
 		}
 
 		int ExchangeUDPPorts(Socket server, int clientPort)

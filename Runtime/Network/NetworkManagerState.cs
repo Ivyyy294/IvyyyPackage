@@ -52,5 +52,18 @@ namespace Ivyyy.Network
 
 			return new NetworkPackageValue (payload);
 		}
+
+		protected void CloseSocket (Socket socket)
+		{
+			if (socket != null)
+			{
+				if (socket.Connected) 
+					socket.Shutdown(SocketShutdown.Both);
+
+				socket.Close();
+				socket.Dispose();
+				socket = null;
+			}
+		}
 	}
 }
