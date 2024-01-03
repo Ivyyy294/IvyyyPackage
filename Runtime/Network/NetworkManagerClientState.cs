@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Ivyyy.Network
@@ -11,6 +12,7 @@ namespace Ivyyy.Network
 	{
 		private string ip;
 		NetworkClientThread clientThread = null;
+		Task udpReceiveTask;
 
 		public NetworkManagerClientState (string _ip) {ip = _ip;}
 		~NetworkManagerClientState()
@@ -23,6 +25,10 @@ namespace Ivyyy.Network
 		{
 			//Create client Socket
 			Socket socket = GetClientSocket (ip);
+
+			//Start Receive task
+			int port = ((IPEndPoint) socket.LocalEndPoint).Port;
+			udpReceiveTask = Task.Run(()=>{UDPReceive(port);});
 
 			if (socket == null)
 			{

@@ -45,7 +45,10 @@ namespace Ivyyy.Network
 			int size = 0;
 
 			foreach (var i in valueList)
-				size += i.Size();
+			{
+				if (i != null)
+					size += i.Size();
+			}
 
 			return size;
 		}
@@ -59,13 +62,16 @@ namespace Ivyyy.Network
 
 			foreach (var i in valueList)
 			{
-				int size = i.Size();
+				if (i != null)
+				{
+					int size = i.Size();
 
-				//copy content bytes to the correct position in value byte array
-				Buffer.BlockCopy(i.GetSerializedData(), 0, value, index, size);
+					//copy content bytes to the correct position in value byte array
+					Buffer.BlockCopy(i.GetSerializedData(), 0, value, index, size);
 
-				//Adding current size to index offset to get the memmory position for the next entry 
-				index += size;
+					//Adding current size to index offset to get the memmory position for the next entry 
+					index += size;
+				}
 			}
 
 			return value;

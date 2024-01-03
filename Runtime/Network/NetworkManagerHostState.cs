@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Ivyyy.Network
@@ -10,11 +11,14 @@ namespace Ivyyy.Network
 	{
 		List <NetworkClientThread> clientList = new List<NetworkClientThread>();
 		Socket clientAcceptSocket = null;
+		Task udpReceiveTask;
 		int updPort = 23001;
 
 		public override bool Start()
 		{
 			clientAcceptSocket = GetHostSocket();
+
+			udpReceiveTask = Task.Run(()=>{UDPReceive(NetworkManager.Me.Port);});
 
 			clientAcceptSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
 

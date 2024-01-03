@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 
 namespace Ivyyy.Network
@@ -8,6 +9,7 @@ namespace Ivyyy.Network
 		//Protected Values
 		protected const int idOffset = 16; //size of guid
 		protected NetworkPackage networkPackage = new NetworkPackage();
+		protected bool shutDown = false;
 
 		//Public Methods
 		public abstract bool Start();
@@ -62,6 +64,27 @@ namespace Ivyyy.Network
 				socket.Close();
 				socket.Dispose();
 				socket = null;
+			}
+		}
+
+		protected void UDPReceive (int port)
+		{
+			NetworkPackage buffer = new NetworkPackage();
+			UdpClient udpClient = new UdpClient(port);
+			IPEndPoint remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
+
+			while (!shutDown)
+			{
+				//UDP Packages
+				if (udpClient.Available > 0)
+				{
+					byte[] data = udpClient.Receive (ref remoteIpEndPoint);
+					buffer.DeserializeData (data);
+
+					//For each Value in networkPackage
+					for (int i = 0; i < buffer.Count; ++i)
+						SetNetObjectFromValue (buffer.Value(i));
+				}
 			}
 		}
 	}

@@ -40,7 +40,7 @@ namespace Ivyyy.Network
 			tcpSocket = connectionData.socket;
 			remoteEndPoint = (IPEndPoint) tcpSocket.RemoteEndPoint;
 			localEndPoint = (IPEndPoint) tcpSocket.LocalEndPoint;
-			udpClient = new UdpClient(localEndPoint.Port);
+			udpClient = new UdpClient();
 			Status = tcpSocket.Connected ? ConnectionStatus.CONNECTED : ConnectionStatus.DISCONNECTED;
 			lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 		}
@@ -88,23 +88,8 @@ namespace Ivyyy.Network
 		{
 			try
 			{
-				IPEndPoint remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
-
 				while (!shutdown)
 				{
-					//UDP Packages
-					if (udpClient.Available > 0)
-					{
-						lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-
-						byte[] data = udpClient.Receive (ref remoteIpEndPoint);
-						networkPackage.DeserializeData (data);
-
-						//For each Value in networkPackage
-						for (int i = 0; i < networkPackage.Count; ++i)
-							NetworkManagerState.SetNetObjectFromValue (networkPackage.Value(i));
-					}
-
 					//TCP Packages
 					if (tcpSocket.Available > 0)
 					{
