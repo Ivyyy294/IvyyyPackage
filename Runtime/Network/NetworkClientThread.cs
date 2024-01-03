@@ -7,6 +7,7 @@ namespace Ivyyy.Network
 {
 	class NetworkClientThread : NetworkWorkerThread
 	{
+		//Public Values
 		public enum ConnectionStatus
 		{
 			DISCONNECTED,
@@ -14,27 +15,74 @@ namespace Ivyyy.Network
 			TIME_OUT
 		}
 
+		public struct ConnectionData
+		{
+			public bool accepted;
+			public Socket socket;
+			public int localUDPPort;
+			public int remoteUDPPort;
+		}
+
+		//Private Values
 		IPEndPoint serverEndPoint = null;
 		UdpClient udpClient = null;
 		Socket tcpSocket = null;
 		NetworkPackage networkPackage = new NetworkPackage();
 		long lastPackageTimestamp;
 
+		//Public Methods
 		public ConnectionStatus Status {get; private set; }
 		public Socket TcpSocket {get{return tcpSocket; } }
 
-		public NetworkClientThread (Socket socket, int udpPortLocal, int updPortRemote)
+		public NetworkClientThread (ConnectionData connectionData)
 		{
-			Debug.Log("udpPortLocal: " + udpPortLocal + " updPortRemote: " + updPortRemote);
-
-			tcpSocket = socket;
-			serverEndPoint = (IPEndPoint) socket.RemoteEndPoint;
-			serverEndPoint.Port = updPortRemote;
-			udpClient = new UdpClient(udpPortLocal);
-			Status = socket.Connected ? ConnectionStatus.CONNECTED : ConnectionStatus.DISCONNECTED;
+			tcpSocket = connectionData.socket;
+			serverEndPoint = (IPEndPoint) tcpSocket.RemoteEndPoint;
+			serverEndPoint.Port = connectionData.remoteUDPPort;
+			udpClient = new UdpClient(connectionData.localUDPPort);
+			Status = tcpSocket.Connected ? ConnectionStatus.CONNECTED : ConnectionStatus.DISCONNECTED;
 			lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 		}
 
+		public override bool SendUDPData (byte[] data)
+		{
+			int length = data.Length;
+
+			try
+			{
+				int byteSend = udpClient.Send (data, data.Length, serverEndPoint);
+				return length == byteSend;
+			}
+			catch (Exception e)
+			{
+				Debug.Log (e);
+			}
+
+			return false;
+		}
+
+		public bool SendTCPData (byte[] data)
+		{
+			int length = data.Length;
+
+			try
+			{
+				int byteSend = tcpSocket.Send (data);
+				return length == byteSend;
+			}
+			catch (Exception e)
+			{
+				Debug.Log (e);
+				return false;
+			}
+		}
+
+		public long Ping()
+		{
+			return DateTimeOffset.Now.ToUnixTimeMilliseconds() - lastPackageTimestamp;
+		}
+
+		//Protected Methods
 		protected override void ReceiveData()
 		{
 			try
@@ -88,44 +136,7 @@ namespace Ivyyy.Network
 			CloseSocket();
 		}
 
-		public override bool SendUDPData (byte[] data)
-		{
-			int length = data.Length;
-
-			try
-			{
-				int byteSend = udpClient.Send (data, data.Length, serverEndPoint);
-				return length == byteSend;
-			}
-			catch (Exception e)
-			{
-				Debug.Log (e);
-			}
-
-			return false;
-		}
-
-		public bool SendTCPData (byte[] data)
-		{
-			int length = data.Length;
-
-			try
-			{
-				int byteSend = tcpSocket.Send (data);
-				return length == byteSend;
-			}
-			catch (Exception e)
-			{
-				Debug.Log (e);
-				return false;
-			}
-		}
-
-		public long Ping()
-		{
-			return DateTimeOffset.Now.ToUnixTimeMilliseconds() - lastPackageTimestamp;
-		}
-
+		//Private Methods
 		private bool TimeOut()
 		{
 			if (NetworkManager.Me.Timeout <= 0)

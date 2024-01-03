@@ -30,8 +30,6 @@ namespace Ivyyy.Network
 
 		public override void ShutDown()
 		{
-			CloseSocket (clientAcceptSocket);
-
 			//Close all client sockets
 			foreach (NetworkClientThread client in clientList)
 			{
@@ -39,7 +37,6 @@ namespace Ivyyy.Network
 				CloseSocket (client.TcpSocket);
 			}
 		}
-
 
 		//Private Methods
 		void SendUPDData()
@@ -143,26 +140,18 @@ namespace Ivyyy.Network
 
 				Debug.Log ("Client connected. " + client.ToString()
 						+ ", IPEndpoint: " + client.RemoteEndPoint.ToString());
-
-				//Check if server accepts client
-				bool accepted = NetworkManager.Me.acceptClient == null || NetworkManager.Me.acceptClient (client);
 				
 				//Notify client
-				SendServerAcceptAnswer (client, accepted);
+				NetworkClientThread.ConnectionData connectionData = HandShake (client);
 
 				//Start client thread
-				if (accepted)
+				if (connectionData.accepted)
 				{
-					Debug.Log("Client Accepted!");
+					NetworkManager.Me.onClientConnected?.Invoke(client);
 
-					int serverPort = updPort++;
-					int clientport = ExchangeUDPPorts(client, serverPort);
-
-					NetworkClientThread handleClient = new NetworkClientThread(client, serverPort, clientport);
+					NetworkClientThread handleClient = new NetworkClientThread(connectionData);
 					handleClient.Start();
 					clientList.Add (handleClient);
-
-					NetworkManager.Me.onClientConnected?.Invoke(client);
 				}
 				else
 					CloseSocket (client);
@@ -176,20 +165,37 @@ namespace Ivyyy.Network
 			clientAcceptSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
 		}
 
-		void SendServerAcceptAnswer (Socket client, bool accepted)
+		NetworkClientThread.ConnectionData HandShake (Socket client)
 		{
-			client.Send(BitConverter.GetBytes (accepted));
-		}
+			NetworkClientThread.ConnectionData connectionData = new NetworkClientThread.ConnectionData();
+			connectionData.socket = client;
 
-		int ExchangeUDPPorts (Socket client, int serverPort)
-		{
-			//send Host Port
-			client.Send(BitConverter.GetBytes (serverPort));
+			//Step1 send accept flag to client
 
-			//get client port
+			//Check if server accepts client
+			connectionData.accepted = NetworkManager.Me.acceptClient == null || NetworkManager.Me.acceptClient (client);
+			client.Send(BitConverter.GetBytes (connectionData.accepted));
+
+			if (connectionData.accepted)
+				Debug.Log ("Client Accepted!");
+			else
+			{
+				Debug.Log ("Client rejected!");
+				return connectionData;
+			}
+
+			//Step2 send server upd port number to client
+			connectionData.localUDPPort = updPort++;
+			client.Send(BitConverter.GetBytes (connectionData.localUDPPort));
+			Debug.Log("Server UDP Port: " + connectionData.localUDPPort);
+
+			//Step2 get client upd port number
 			byte[] buffer = new byte[sizeof(int)];
 			client.Receive (buffer);
-			return BitConverter.ToInt32 (buffer, 0);
+			connectionData.remoteUDPPort = BitConverter.ToInt32 (buffer, 0);
+			Debug.Log ("Client UDP Port: " + connectionData.remoteUDPPort);
+
+			return connectionData;
 		}
 	}
 }

@@ -18,31 +18,35 @@ namespace Ivyyy.Network
 			ShutDown();
 		}
 
+		//Public Methods
 		public override bool Start()
 		{
 			//Create client Socket
 			Socket socket = GetClientSocket (ip);
 
-			bool ok = socket != null;
+			if (socket == null)
+			{
+				Debug.Log ("Unable to connect!");
+				return false;
+			}
 
-			if (ok)
+			NetworkClientThread.ConnectionData connectionData = HandShake (socket);
+
+			if (connectionData.accepted)
 			{
 				Debug.Log("Conntected to Host!");
-		
-				if (NetworkManager.Me.onConnectedToHost != null)
-					NetworkManager.Me.onConnectedToHost (socket);
 
-				int clientPort = ((IPEndPoint) socket.LocalEndPoint).Port;
-				int serverUdpPort = ExchangeUDPPorts (socket, clientPort);
+				NetworkManager.Me.onConnectedToHost?.Invoke (socket);
 
 				//Start listener thread
-				clientThread = new NetworkClientThread (socket, clientPort, serverUdpPort);
+				clientThread = new NetworkClientThread (connectionData);
 				clientThread.Start();
+				return true;
 			}
 			else
-				Debug.Log ("Unable to connect!");
+				CloseSocket (socket);
 
-			return ok;
+			return false;;
 		}
 
 		public override void Update()
@@ -66,6 +70,40 @@ namespace Ivyyy.Network
 				clientThread.Shutdown();
 				CloseSocket (clientThread.TcpSocket);
 			}
+		}
+
+		//Private Methods
+		NetworkClientThread.ConnectionData HandShake(Socket socket)
+		{
+			NetworkClientThread.ConnectionData connectionData = new NetworkClientThread.ConnectionData();
+			connectionData.socket = socket;
+
+			byte[] buffer = new byte[sizeof(bool) + sizeof (int)];
+
+			//Step1 get accept flag from Server
+			socket.Receive (buffer);
+			connectionData.accepted = BitConverter.ToBoolean (buffer, 0);
+
+			if (connectionData.accepted)
+				Debug.Log("Server accepted!");
+			else
+			{
+				Debug.Log("Server rejected!");
+				CloseSocket (socket);
+				return connectionData;
+			}
+
+			//Step2 get server upd port number
+			socket.Receive (buffer);
+			connectionData.remoteUDPPort = BitConverter.ToInt32 (buffer, 0);
+			Debug.Log("Server UDP Port: " + connectionData.remoteUDPPort);
+
+			//Step3 send client upd port number to server
+			connectionData.localUDPPort = ((IPEndPoint) socket.LocalEndPoint).Port;
+			socket.Send(BitConverter.GetBytes (connectionData.localUDPPort));
+			Debug.Log ("Client UDP Port: " + connectionData.localUDPPort);
+
+			return connectionData;
 		}
 
 		void SendData()
@@ -108,18 +146,7 @@ namespace Ivyyy.Network
 				//Cast input to IPAddress
 				iPAddress = IPAddress.Parse (ip);
 				clientSocket.Connect (iPAddress, NetworkManager.Me.Port);
-
-				if (clientSocket.Connected && ServerAcceptsClient (clientSocket))
-				{
-					Debug.Log("Server accepted!");
-					return clientSocket;
-				}
-				else
-				{
-					Debug.Log("Server rejected!");
-					CloseSocket (clientSocket);
-					return null;
-				}
+				return clientSocket;
 			}
 			catch (Exception excp)
 			{
@@ -141,28 +168,6 @@ namespace Ivyyy.Network
 				clientThread.Shutdown();
 				Debug.Log ("Client timed-out!");
 			}
-		}
-
-		//Handshake
-		bool ServerAcceptsClient (Socket server)
-		{
-			//Get confirmation from server
-			byte[] buffer = new byte[sizeof(bool)];
-			server.Receive (buffer);
-			return BitConverter.ToBoolean (buffer, 0);
-		}
-
-		int ExchangeUDPPorts(Socket server, int clientPort)
-		{
-			//Get host port
-			byte[] buffer = new byte[sizeof(int)];
-			server.Receive (buffer);
-			int serverPort = BitConverter.ToInt32 (buffer, 0);
-
-			//send Host Port
-			server.Send(BitConverter.GetBytes (clientPort));
-
-			return serverPort;
 		}
 	}
 }

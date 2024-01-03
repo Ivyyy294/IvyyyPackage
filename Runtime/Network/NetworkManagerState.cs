@@ -5,16 +5,15 @@ namespace Ivyyy.Network
 {
 	public abstract class NetworkManagerState
 	{
-		//Public Values
-		public abstract bool Start();
-		public abstract void Update();
-		public abstract void ShutDown();
-
 		//Protected Values
 		protected const int idOffset = 16; //size of guid
 		protected NetworkPackage networkPackage = new NetworkPackage();
 
 		//Public Methods
+		public abstract bool Start();
+		public abstract void Update();
+		public abstract void ShutDown();
+
 		//Reconstructs a NetworkObject from the given NetworkPackageValue
 		public static  void SetNetObjectFromValue (NetworkPackageValue netValue)
 		{

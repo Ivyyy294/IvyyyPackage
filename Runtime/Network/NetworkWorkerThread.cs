@@ -9,6 +9,7 @@ namespace Ivyyy.Network
 {
 	public abstract class NetworkWorkerThread
 	{
+		//Public Values
 		private Thread thread = null;
 		protected bool shutdown = false;
 		public bool IsRunning { get { return !shutdown;} }
