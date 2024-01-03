@@ -34,10 +34,11 @@ namespace Ivyyy.Network
 				return false;
 			}
 
-			NetworkClientThread.ConnectionData connectionData = HandShake (socket);
-
-			if (connectionData.accepted)
+			if (HandShake (socket))
 			{
+				if (NetworkManager.Me.onConnectedToHost != null)
+					NetworkManager.Me.onConnectedToHost (socket);
+
 				Debug.Log("Conntected to Host!");
 
 				//Add server to udpEndPoints
@@ -46,7 +47,6 @@ namespace Ivyyy.Network
 				//Add tcp socket to list
 				AddTcpSocket (socket);
 
-				NetworkManager.Me.onConnectedToHost?.Invoke (socket);
 				return true;
 			}
 			else
@@ -72,7 +72,7 @@ namespace Ivyyy.Network
 		}
 
 		//Private Methods
-		NetworkClientThread.ConnectionData HandShake(Socket socket)
+		bool HandShake(Socket socket)
 		{
 			NetworkClientThread.ConnectionData connectionData = new NetworkClientThread.ConnectionData();
 			connectionData.socket = socket;
@@ -81,28 +81,14 @@ namespace Ivyyy.Network
 
 			//Step1 get accept flag from Server
 			socket.Receive (buffer);
-			connectionData.accepted = BitConverter.ToBoolean (buffer, 0);
+			bool accepted = BitConverter.ToBoolean (buffer, 0);
 
-			if (connectionData.accepted)
+			if (accepted)
 				Debug.Log("Server accepted!");
 			else
-			{
 				Debug.Log("Server rejected!");
-				CloseSocket (socket);
-				return connectionData;
-			}
 
-			//Step2 get server upd port number
-			socket.Receive (buffer);
-			connectionData.remoteUDPPort = BitConverter.ToInt32 (buffer, 0);
-			Debug.Log("Server UDP Port: " + connectionData.remoteUDPPort);
-
-			//Step3 send client upd port number to server
-			connectionData.localUDPPort = ((IPEndPoint) socket.LocalEndPoint).Port;
-			socket.Send(BitConverter.GetBytes (connectionData.localUDPPort));
-			Debug.Log ("Client UDP Port: " + connectionData.localUDPPort);
-
-			return connectionData;
+			return accepted;
 		}
 
 		void SendData()

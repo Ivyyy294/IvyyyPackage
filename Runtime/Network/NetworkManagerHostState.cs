@@ -130,15 +130,14 @@ namespace Ivyyy.Network
 				Debug.Log ("Client connected. " + client.ToString()
 						+ ", IPEndpoint: " + client.RemoteEndPoint.ToString());
 				
-				//Notify client
-				NetworkClientThread.ConnectionData connectionData = HandShake (client);
-
 				//Start client thread
-				if (connectionData.accepted)
+				if (HandShake (client))
 				{
+					if (NetworkManager.Me.onClientConnected != null)
+						NetworkManager.Me.onClientConnected(client);
+
 					udpEndPoints.Add ((IPEndPoint)client.RemoteEndPoint);
 					AddTcpSocket (client);
-					NetworkManager.Me.onClientConnected?.Invoke(client);
 				}
 				else
 					CloseSocket (client);
@@ -152,37 +151,18 @@ namespace Ivyyy.Network
 			clientAcceptSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
 		}
 
-		NetworkClientThread.ConnectionData HandShake (Socket client)
+		bool HandShake (Socket client)
 		{
-			NetworkClientThread.ConnectionData connectionData = new NetworkClientThread.ConnectionData();
-			connectionData.socket = client;
-
-			//Step1 send accept flag to client
-
 			//Check if server accepts client
-			connectionData.accepted = NetworkManager.Me.acceptClient == null || NetworkManager.Me.acceptClient (client);
-			client.Send(BitConverter.GetBytes (connectionData.accepted));
+			bool accepted = NetworkManager.Me.acceptClient == null || NetworkManager.Me.acceptClient (client);
+			client.Send(BitConverter.GetBytes (accepted));
 
-			if (connectionData.accepted)
+			if (accepted)
 				Debug.Log ("Client Accepted!");
 			else
-			{
 				Debug.Log ("Client rejected!");
-				return connectionData;
-			}
 
-			//Step2 send server upd port number to client
-			connectionData.localUDPPort = updPort++;
-			client.Send(BitConverter.GetBytes (connectionData.localUDPPort));
-			Debug.Log("Server UDP Port: " + connectionData.localUDPPort);
-
-			//Step2 get client upd port number
-			byte[] buffer = new byte[sizeof(int)];
-			client.Receive (buffer);
-			connectionData.remoteUDPPort = BitConverter.ToInt32 (buffer, 0);
-			Debug.Log ("Client UDP Port: " + connectionData.remoteUDPPort);
-
-			return connectionData;
+			return accepted;
 		}
 	}
 }
