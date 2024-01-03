@@ -45,23 +45,6 @@ namespace Ivyyy.Network
 			lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 		}
 
-		public override bool SendUDPData (byte[] data)
-		{
-			int length = data.Length;
-
-			try
-			{
-				int byteSend = udpClient.Send (data, data.Length, remoteEndPoint);
-				return length == byteSend;
-			}
-			catch (Exception e)
-			{
-				Debug.Log (e);
-			}
-
-			return false;
-		}
-
 		public bool SendTCPData (byte[] data)
 		{
 			int length = data.Length;

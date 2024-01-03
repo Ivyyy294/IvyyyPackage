@@ -1,20 +1,40 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Ivyyy.Network
 {
 	public abstract class NetworkManagerState
 	{
+		public NetworkManagerState()
+		{
+			udpSendSocket = new UdpClient();
+			udpEndPoints = new List<IPEndPoint>();
+		}
+
 		//Protected Values
 		protected const int idOffset = 16; //size of guid
 		protected NetworkPackage networkPackage = new NetworkPackage();
 		protected bool shutDown = false;
+		
+		//UDP
+		protected Task udpReceiveTask;
+		protected List <IPEndPoint> udpEndPoints;
+		private UdpClient udpSendSocket;
 
 		//Public Methods
 		public abstract bool Start();
 		public abstract void Update();
-		public abstract void ShutDown();
+
+		public virtual void ShutDown()
+		{
+			shutDown = true;
+			Debug.Log ("Waiting for udpReceiveTask to exit...");
+			udpReceiveTask.Wait();
+		}
 
 		//Reconstructs a NetworkObject from the given NetworkPackageValue
 		public static  void SetNetObjectFromValue (NetworkPackageValue netValue)
@@ -65,6 +85,21 @@ namespace Ivyyy.Network
 				socket.Dispose();
 				socket = null;
 			}
+		}
+
+		protected bool SendUDPData (byte[] data)
+		{
+			try
+			{
+				foreach (IPEndPoint i in udpEndPoints)
+					udpSendSocket.Send (data, data.Length, i);
+			}
+			catch (Exception e)
+			{
+				Debug.Log (e);
+			}
+
+			return false;
 		}
 
 		protected void UDPReceive (int port)

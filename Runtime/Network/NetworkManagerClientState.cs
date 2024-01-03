@@ -12,7 +12,6 @@ namespace Ivyyy.Network
 	{
 		private string ip;
 		NetworkClientThread clientThread = null;
-		Task udpReceiveTask;
 
 		public NetworkManagerClientState (string _ip) {ip = _ip;}
 		~NetworkManagerClientState()
@@ -41,6 +40,9 @@ namespace Ivyyy.Network
 			if (connectionData.accepted)
 			{
 				Debug.Log("Conntected to Host!");
+
+				//Add server to udpEndPoints
+				udpEndPoints.Add ((IPEndPoint)socket.RemoteEndPoint);
 
 				NetworkManager.Me.onConnectedToHost?.Invoke (socket);
 
@@ -71,6 +73,8 @@ namespace Ivyyy.Network
 
 		public override void ShutDown()
 		{
+			base.ShutDown();
+
 			if (clientThread != null)
 			{
 				clientThread.Shutdown();
@@ -126,7 +130,7 @@ namespace Ivyyy.Network
 					networkPackage.AddValue (GetNetObjectAsValue (networkObject));
 			}
 
-			clientThread.SendUDPData (networkPackage.GetSerializedData());
+			SendUDPData (networkPackage.GetSerializedData());
 
 			//Send TCP Data
 			if (NetworkRPC.outgoingRpcStack.Count > 0)

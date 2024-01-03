@@ -11,7 +11,6 @@ namespace Ivyyy.Network
 	{
 		List <NetworkClientThread> clientList = new List<NetworkClientThread>();
 		Socket clientAcceptSocket = null;
-		Task udpReceiveTask;
 		int updPort = 23001;
 
 		public override bool Start()
@@ -34,6 +33,8 @@ namespace Ivyyy.Network
 
 		public override void ShutDown()
 		{
+			base.ShutDown();
+
 			//Close all client sockets
 			foreach (NetworkClientThread client in clientList)
 			{
@@ -58,9 +59,7 @@ namespace Ivyyy.Network
 
 			byte[] data = networkPackage.GetSerializedData();
 
-			//Sent the data of all NetworkObjects to all clients
-			foreach (NetworkClientThread client in clientList)
-				client.SendUDPData (data);
+			SendUDPData (data);
 		}
 
 		void SendTCPData()
@@ -151,6 +150,8 @@ namespace Ivyyy.Network
 				//Start client thread
 				if (connectionData.accepted)
 				{
+					udpEndPoints.Add ((IPEndPoint)client.RemoteEndPoint);
+
 					NetworkManager.Me.onClientConnected?.Invoke(client);
 
 					NetworkClientThread handleClient = new NetworkClientThread(connectionData);
