@@ -11,7 +11,6 @@ namespace Ivyyy.Network
 	class NetworkManagerClientState : NetworkManagerState
 	{
 		private string ip;
-		NetworkClientThread clientThread = null;
 
 		public NetworkManagerClientState (string _ip) {ip = _ip;}
 		~NetworkManagerClientState()
@@ -44,11 +43,10 @@ namespace Ivyyy.Network
 				//Add server to udpEndPoints
 				udpEndPoints.Add ((IPEndPoint)socket.RemoteEndPoint);
 
-				NetworkManager.Me.onConnectedToHost?.Invoke (socket);
+				//Add tcp socket to list
+				AddTcpSocket (socket);
 
-				//Start listener thread
-				clientThread = new NetworkClientThread (connectionData);
-				clientThread.Start();
+				NetworkManager.Me.onConnectedToHost?.Invoke (socket);
 				return true;
 			}
 			else
@@ -59,27 +57,18 @@ namespace Ivyyy.Network
 
 		public override void Update()
 		{
-			if (clientThread.IsRunning)
-			{
-				if (clientThread.Status == NetworkClientThread.ConnectionStatus.CONNECTED)
-				{
-					NetworkRPC.ExecutePendingRPC();
-					SendData();
-				}
-				else
-					CheckHostStatus();
-			}
-		}
-
-		public override void ShutDown()
-		{
-			base.ShutDown();
-
-			if (clientThread != null)
-			{
-				clientThread.Shutdown();
-				CloseSocket (clientThread.TcpSocket);
-			}
+			NetworkRPC.ExecutePendingRPC();
+			SendData();
+			//if (clientThread.IsRunning)
+			//{
+			//	if (clientThread.Status == NetworkClientThread.ConnectionStatus.CONNECTED)
+			//	{
+			//		NetworkRPC.ExecutePendingRPC();
+			//		SendData();
+			//	}
+			//	else
+			//		CheckHostStatus();
+			//}
 		}
 
 		//Private Methods
@@ -140,7 +129,7 @@ namespace Ivyyy.Network
 				while (NetworkRPC.outgoingRpcStack.Count > 0)
 					networkPackage.AddValue (new NetworkPackageValue (NetworkRPC.outgoingRpcStack.Pop().GetSerializedData()));
 
-				clientThread.SendTCPData (networkPackage.GetSerializedData());
+				SendTCPData (networkPackage.GetSerializedData());
 			}
 		}
 
@@ -164,21 +153,21 @@ namespace Ivyyy.Network
 			}
 		}
 
-		void CheckHostStatus()
-		{
-			if (clientThread.Status == NetworkClientThread.ConnectionStatus.DISCONNECTED)
-			{
-				NetworkManager.Me.onClientDisonnected?.Invoke(clientThread.TcpSocket);
-				clientThread.Shutdown();
-				Debug.Log ("Client disconnected!");
-			}
-			else if (clientThread.Status == NetworkClientThread.ConnectionStatus.TIME_OUT)
-			{
-				NetworkManager.Me.onClientTimeOut?.Invoke(clientThread.TcpSocket);
-				clientThread.Shutdown();
-				Debug.Log ("Client timed-out!");
-			}
-		}
+		//void CheckHostStatus()
+		//{
+		//	if (clientThread.Status == NetworkClientThread.ConnectionStatus.DISCONNECTED)
+		//	{
+		//		NetworkManager.Me.onClientDisonnected?.Invoke(clientThread.TcpSocket);
+		//		clientThread.Shutdown();
+		//		Debug.Log ("Client disconnected!");
+		//	}
+		//	else if (clientThread.Status == NetworkClientThread.ConnectionStatus.TIME_OUT)
+		//	{
+		//		NetworkManager.Me.onClientTimeOut?.Invoke(clientThread.TcpSocket);
+		//		clientThread.Shutdown();
+		//		Debug.Log ("Client timed-out!");
+		//	}
+		//}
 	}
 }
 

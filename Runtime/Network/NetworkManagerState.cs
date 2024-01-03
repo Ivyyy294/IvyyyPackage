@@ -13,6 +13,8 @@ namespace Ivyyy.Network
 		{
 			udpSendSocket = new UdpClient();
 			udpEndPoints = new List<IPEndPoint>();
+			tcpSockets = new List<Socket>();
+			tcpReceiveTask = new List<Task>();
 		}
 
 		//Protected Values
@@ -25,6 +27,16 @@ namespace Ivyyy.Network
 		protected List <IPEndPoint> udpEndPoints;
 		private UdpClient udpSendSocket;
 
+		//TCP
+		private List<Socket> tcpSockets;
+		private List <Task> tcpReceiveTask;
+
+		protected void AddTcpSocket (Socket tcpSocket)
+		{
+			tcpSockets.Add (tcpSocket);
+			tcpReceiveTask.Add(Task.Run(()=>{TCPReceive(tcpSocket);}));
+		}
+
 		//Public Methods
 		public abstract bool Start();
 		public abstract void Update();
@@ -34,6 +46,12 @@ namespace Ivyyy.Network
 			shutDown = true;
 			Debug.Log ("Waiting for udpReceiveTask to exit...");
 			udpReceiveTask.Wait();
+
+			Debug.Log ("waiting for udpReceiveTasks to exit");
+			foreach (Task i in tcpReceiveTask)
+				i.Wait();
+
+			Debug.Log("ShutDown done!");
 		}
 
 		//Reconstructs a NetworkObject from the given NetworkPackageValue
@@ -83,10 +101,10 @@ namespace Ivyyy.Network
 
 				socket.Close();
 				socket.Dispose();
-				socket = null;
 			}
 		}
 
+		//UDP
 		protected bool SendUDPData (byte[] data)
 		{
 			try
@@ -121,6 +139,66 @@ namespace Ivyyy.Network
 						SetNetObjectFromValue (buffer.Value(i));
 				}
 			}
+		}
+
+		//TCP
+		protected bool SendTCPData (byte[] data)
+		{
+			try
+			{
+				foreach (Socket i in tcpSockets)
+					i.Send (data);
+			}
+			catch (Exception e)
+			{
+				Debug.Log (e);
+			}
+
+			return false;
+		}
+
+		protected void TCPReceive (Socket socket)
+		{
+			//float lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
+			try
+			{
+				while (!shutDown)
+				{
+					//TCP Packages
+					if (socket.Available > 0)
+					{
+						//lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
+						byte[] buffer = new byte[socket.Available];
+						int byteReceived = socket.Receive (buffer);
+						byte[] data = new byte [byteReceived];
+						Buffer.BlockCopy (buffer, 0, data, 0, byteReceived);
+						networkPackage.DeserializeData (data);
+
+						for (int i = 0; i < networkPackage.Count; ++i)
+							NetworkRPC.AddFromSerializedData (networkPackage.Value(i).GetBytes());
+					}
+
+					//bool timeOut = NetworkManager.Me.Timeout > 0
+					//	&& (DateTimeOffset.Now.ToUnixTimeMilliseconds() - lastPackageTimestamp > NetworkManager.Me.Timeout);
+
+					//if (timeOut)
+					//{
+					//	Debug.Log ("Time out!");
+					//	NetworkManager.Me.onClientTimeOut?.Invoke (socket);
+					//	break;
+					//}
+				}
+			}
+			catch (Exception e)
+			{
+				Debug.Log (e);
+			}
+
+			//Remove Socket from list
+			tcpSockets.Remove (socket);
+			CloseSocket (socket);
 		}
 	}
 }

@@ -42,7 +42,6 @@ namespace Ivyyy.Network
 			localEndPoint = (IPEndPoint) tcpSocket.LocalEndPoint;
 			udpClient = new UdpClient();
 			Status = tcpSocket.Connected ? ConnectionStatus.CONNECTED : ConnectionStatus.DISCONNECTED;
-			lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 		}
 
 		public bool SendTCPData (byte[] data)
@@ -111,7 +110,7 @@ namespace Ivyyy.Network
 			if (NetworkManager.Me.Timeout <= 0)
 				return false;
 			
-			return Ping() > NetworkManager.Me.Timeout;
+			return DateTimeOffset.Now.ToUnixTimeMilliseconds() - lastPackageTimestamp > NetworkManager.Me.Timeout;
 		}
 
 		private void CloseSocket ()

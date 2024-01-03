@@ -9,7 +9,6 @@ namespace Ivyyy.Network
 {
 	class NetworkManagerHostState : NetworkManagerState
 	{
-		List <NetworkClientThread> clientList = new List<NetworkClientThread>();
 		Socket clientAcceptSocket = null;
 		int updPort = 23001;
 
@@ -26,21 +25,9 @@ namespace Ivyyy.Network
 
 		public override void Update()
 		{
-			CheckClientStatus();
+			//CheckClientStatus();
 			SendUPDData();
 			SendTCPData();
-		}
-
-		public override void ShutDown()
-		{
-			base.ShutDown();
-
-			//Close all client sockets
-			foreach (NetworkClientThread client in clientList)
-			{
-				client.Shutdown();
-				CloseSocket (client.TcpSocket);
-			}
 		}
 
 		//Private Methods
@@ -82,38 +69,37 @@ namespace Ivyyy.Network
 				}
 
 				//Sent the data of all NetworkObjects to all clients
-				foreach (NetworkClientThread client in clientList)
-					client.SendTCPData (networkPackage.GetSerializedData());
+				SendTCPData (networkPackage.GetSerializedData());
 			}
 		}
 		
-		void CheckClientStatus()
-		{
-			List <NetworkClientThread> invalidClientList = new List<NetworkClientThread>();
+		//void CheckClientStatus()
+		//{
+		//	List <NetworkClientThread> invalidClientList = new List<NetworkClientThread>();
 
-			//Find invalid client connection
-			foreach (NetworkClientThread client in clientList)
-			{
-				if (client.Status != NetworkClientThread.ConnectionStatus.CONNECTED)
-					invalidClientList.Add (client);
-			}
+		//	//Find invalid client connection
+		//	foreach (NetworkClientThread client in clientList)
+		//	{
+		//		if (client.Status != NetworkClientThread.ConnectionStatus.CONNECTED)
+		//			invalidClientList.Add (client);
+		//	}
 
-			foreach (NetworkClientThread client in invalidClientList)
-			{
-				if (client.Status == NetworkClientThread.ConnectionStatus.DISCONNECTED)
-				{
-					NetworkManager.Me.onClientDisonnected?.Invoke(client.TcpSocket);
-					Debug.Log ("Client disconnected!");
-				}
-				else if (client.Status == NetworkClientThread.ConnectionStatus.TIME_OUT)
-				{
-					NetworkManager.Me.onClientTimeOut?.Invoke(client.TcpSocket);
-					Debug.Log ("Client timed-out!");
-				}
+		//	foreach (NetworkClientThread client in invalidClientList)
+		//	{
+		//		if (client.Status == NetworkClientThread.ConnectionStatus.DISCONNECTED)
+		//		{
+		//			NetworkManager.Me.onClientDisonnected?.Invoke(client.TcpSocket);
+		//			Debug.Log ("Client disconnected!");
+		//		}
+		//		else if (client.Status == NetworkClientThread.ConnectionStatus.TIME_OUT)
+		//		{
+		//			NetworkManager.Me.onClientTimeOut?.Invoke(client.TcpSocket);
+		//			Debug.Log ("Client timed-out!");
+		//		}
 
-				clientList.Remove (client);
-			}
-		}
+		//		clientList.Remove (client);
+		//	}
+		//}
 
 		Socket GetHostSocket ()
 		{
@@ -151,12 +137,8 @@ namespace Ivyyy.Network
 				if (connectionData.accepted)
 				{
 					udpEndPoints.Add ((IPEndPoint)client.RemoteEndPoint);
-
+					AddTcpSocket (client);
 					NetworkManager.Me.onClientConnected?.Invoke(client);
-
-					NetworkClientThread handleClient = new NetworkClientThread(connectionData);
-					handleClient.Start();
-					clientList.Add (handleClient);
 				}
 				else
 					CloseSocket (client);
