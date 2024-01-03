@@ -24,7 +24,8 @@ namespace Ivyyy.Network
 		}
 
 		//Private Values
-		IPEndPoint serverEndPoint = null;
+		IPEndPoint remoteEndPoint = null;
+		IPEndPoint localEndPoint = null;
 		UdpClient udpClient = null;
 		Socket tcpSocket = null;
 		NetworkPackage networkPackage = new NetworkPackage();
@@ -37,9 +38,9 @@ namespace Ivyyy.Network
 		public NetworkClientThread (ConnectionData connectionData)
 		{
 			tcpSocket = connectionData.socket;
-			serverEndPoint = (IPEndPoint) tcpSocket.RemoteEndPoint;
-			serverEndPoint.Port = connectionData.remoteUDPPort;
-			udpClient = new UdpClient(connectionData.localUDPPort);
+			remoteEndPoint = (IPEndPoint) tcpSocket.RemoteEndPoint;
+			localEndPoint = (IPEndPoint) tcpSocket.LocalEndPoint;
+			udpClient = new UdpClient(localEndPoint.Port);
 			Status = tcpSocket.Connected ? ConnectionStatus.CONNECTED : ConnectionStatus.DISCONNECTED;
 			lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 		}
@@ -50,7 +51,7 @@ namespace Ivyyy.Network
 
 			try
 			{
-				int byteSend = udpClient.Send (data, data.Length, serverEndPoint);
+				int byteSend = udpClient.Send (data, data.Length, remoteEndPoint);
 				return length == byteSend;
 			}
 			catch (Exception e)
