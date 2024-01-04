@@ -114,8 +114,10 @@ namespace Ivyyy.Network
 		{
 			try
 			{
+				byte[] buffer = AddSizeHeaderToData(data);
+
 				foreach (IPEndPoint i in udpEndPoints)
-					udpSendSocket.Send (data, data.Length, i);
+					udpSendSocket.Send (buffer, buffer.Length, i);
 			}
 			catch (Exception e)
 			{
@@ -130,18 +132,34 @@ namespace Ivyyy.Network
 			NetworkPackage buffer = new NetworkPackage();
 			UdpClient udpClient = new UdpClient(port);
 			IPEndPoint remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
+			byte[] sizeBuffer = new byte[sizeof(int)];
 
 			while (!shutDown)
 			{
 				//UDP Packages
 				if (udpClient.Available > 0)
 				{
+					int index = 0;
+					//Get all stored data from socket
 					byte[] data = udpClient.Receive (ref remoteIpEndPoint);
-					buffer.DeserializeData (data);
 
-					//For each Value in networkPackage
-					for (int i = 0; i < buffer.Count; ++i)
-						SetNetObjectFromValue (buffer.Value(i));
+					while (index < data.Length)
+					{
+						//Get package size
+						int packageSize = BitConverter.ToInt32 (data, index);
+						index += sizeBuffer.Length;
+
+						//Get package data
+						byte[] byteBuffer = new byte[packageSize];
+						Buffer.BlockCopy (data, index, byteBuffer, 0, packageSize);
+						index += packageSize;
+
+						buffer.DeserializeData (byteBuffer);
+
+						//For each Value in networkPackage
+						for (int i = 0; i < buffer.Count; ++i)
+							SetNetObjectFromValue (buffer.Value(i));
+					}
 				}
 			}
 		}
@@ -151,8 +169,10 @@ namespace Ivyyy.Network
 		{
 			try
 			{
+				byte[] buffer = AddSizeHeaderToData(data);
+
 				foreach (Socket i in tcpSockets)
-					i.Send (data);
+					i.Send (buffer);
 			}
 			catch (Exception e)
 			{
@@ -165,6 +185,7 @@ namespace Ivyyy.Network
 		protected void TCPReceive (Socket socket)
 		{
 			//float lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+			byte[] sizeBuffer = new byte[sizeof(int)];
 
 			try
 			{
@@ -173,13 +194,17 @@ namespace Ivyyy.Network
 					//TCP Packages
 					if (socket.Available > 0)
 					{
+						//Get package size
+						socket.Receive (sizeBuffer);
+						int packageSize = BitConverter.ToInt32 (sizeBuffer, 0);
+
+						//Get package data
 						//lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 						Debug.Log("TCPReceive");
-						byte[] buffer = new byte[socket.Available];
-						int byteReceived = socket.Receive (buffer);
-						byte[] data = new byte [byteReceived];
-						Buffer.BlockCopy (buffer, 0, data, 0, byteReceived);
-						networkPackage.DeserializeData (data);
+						byte[] buffer = new byte[packageSize];
+						socket.Receive (buffer);
+
+						networkPackage.DeserializeData (buffer);
 
 						for (int i = 0; i < networkPackage.Count; ++i)
 							NetworkRPC.AddFromSerializedData (networkPackage.Value(i).GetBytes());
@@ -204,6 +229,14 @@ namespace Ivyyy.Network
 			//Remove Socket from list
 			tcpSockets.Remove (socket);
 			CloseSocket (socket);
+		}
+
+		private byte[] AddSizeHeaderToData (byte[] data)
+		{
+			byte[] buffer = new byte[sizeof (int) + data.Length];
+			Buffer.BlockCopy (BitConverter.GetBytes(data.Length), 0, buffer, 0, sizeof (int));
+			Buffer.BlockCopy (data, 0, buffer, sizeof (int), data.Length);
+			return buffer;
 		}
 	}
 }
