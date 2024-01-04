@@ -44,8 +44,12 @@ namespace Ivyyy.Network
 		public virtual void ShutDown()
 		{
 			shutDown = true;
-			Debug.Log ("Waiting for udpReceiveTask to exit...");
-			udpReceiveTask.Wait();
+
+			if (udpReceiveTask != null)
+			{
+				udpReceiveTask.Wait();
+				Debug.Log ("Waiting for udpReceiveTask to exit...");
+			}
 
 			Debug.Log ("waiting for udpReceiveTasks to exit");
 			foreach (Task i in tcpReceiveTask)
@@ -94,6 +98,7 @@ namespace Ivyyy.Network
 
 		protected void CloseSocket (Socket socket)
 		{
+			Debug.Log ("close socket");
 			if (socket != null)
 			{
 				if (socket.Connected) 
@@ -169,7 +174,7 @@ namespace Ivyyy.Network
 					if (socket.Available > 0)
 					{
 						//lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-
+						Debug.Log("TCPReceive");
 						byte[] buffer = new byte[socket.Available];
 						int byteReceived = socket.Receive (buffer);
 						byte[] data = new byte [byteReceived];

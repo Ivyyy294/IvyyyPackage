@@ -36,10 +36,10 @@ namespace Ivyyy.Network
 
 			if (HandShake (socket))
 			{
+				Debug.Log("Conntected to Host!");
+
 				if (NetworkManager.Me.onConnectedToHost != null)
 					NetworkManager.Me.onConnectedToHost (socket);
-
-				Debug.Log("Conntected to Host!");
 
 				//Add server to udpEndPoints
 				udpEndPoints.Add ((IPEndPoint)socket.RemoteEndPoint);
@@ -59,25 +59,12 @@ namespace Ivyyy.Network
 		{
 			NetworkRPC.ExecutePendingRPC();
 			SendData();
-			//if (clientThread.IsRunning)
-			//{
-			//	if (clientThread.Status == NetworkClientThread.ConnectionStatus.CONNECTED)
-			//	{
-			//		NetworkRPC.ExecutePendingRPC();
-			//		SendData();
-			//	}
-			//	else
-			//		CheckHostStatus();
-			//}
 		}
 
 		//Private Methods
 		bool HandShake(Socket socket)
 		{
-			NetworkClientThread.ConnectionData connectionData = new NetworkClientThread.ConnectionData();
-			connectionData.socket = socket;
-
-			byte[] buffer = new byte[sizeof(bool) + sizeof (int)];
+			byte[] buffer = new byte[sizeof(bool)];
 
 			//Step1 get accept flag from Server
 			socket.Receive (buffer);
@@ -131,6 +118,10 @@ namespace Ivyyy.Network
 				//Cast input to IPAddress
 				iPAddress = IPAddress.Parse (ip);
 				clientSocket.Connect (iPAddress, NetworkManager.Me.Port);
+
+				if (clientSocket != null)
+					clientSocket.ReceiveTimeout = 5000;
+
 				return clientSocket;
 			}
 			catch (Exception excp)

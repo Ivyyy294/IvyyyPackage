@@ -9,16 +9,16 @@ namespace Ivyyy.Network
 {
 	class NetworkManagerHostState : NetworkManagerState
 	{
-		Socket clientAcceptSocket = null;
-		int updPort = 23001;
+		Task clientAcceptTask;
 
 		public override bool Start()
 		{
-			clientAcceptSocket = GetHostSocket();
+			Socket clientAcceptSocket = GetHostSocket();
 
 			udpReceiveTask = Task.Run(()=>{UDPReceive(NetworkManager.Me.Port);});
 
-			clientAcceptSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
+			if (clientAcceptSocket != null)
+				clientAcceptTask = Task.Run(()=>{AcceptCLients (clientAcceptSocket);});
 
 			return clientAcceptSocket != null;
 		}
@@ -121,34 +121,36 @@ namespace Ivyyy.Network
 
 		//Method of clientAcceptThread
 		//Creates a new HandleClient Thread for each Client
-		void AcceptCallback (IAsyncResult ar)
+		void AcceptCLients (Socket clientAcceptSocket)
 		{
 			try
 			{
-				Socket client = clientAcceptSocket.EndAccept(ar);
-
-				Debug.Log ("Client connected. " + client.ToString()
-						+ ", IPEndpoint: " + client.RemoteEndPoint.ToString());
-				
-				//Start client thread
-				if (HandShake (client))
+				while (!shutDown)
 				{
-					if (NetworkManager.Me.onClientConnected != null)
-						NetworkManager.Me.onClientConnected(client);
+					Socket client = clientAcceptSocket.Accept();
+					client.ReceiveTimeout = 5000;
 
-					udpEndPoints.Add ((IPEndPoint)client.RemoteEndPoint);
-					AddTcpSocket (client);
+					Debug.Log ("Client connected. " + client.ToString()
+							+ ", IPEndpoint: " + client.RemoteEndPoint.ToString());
+				
+					//Start client thread
+					if (HandShake (client))
+					{
+						if (NetworkManager.Me.onClientConnected != null)
+							NetworkManager.Me.onClientConnected (client);
+
+						udpEndPoints.Add ((IPEndPoint)client.RemoteEndPoint);
+						AddTcpSocket (client);
+						Debug.Log("Init complete!");
+					}
+					else
+						CloseSocket (client);
 				}
-				else
-					CloseSocket (client);
 			}
 			catch (Exception e)
 			{
 				Debug.Log(e);
 			}
-
-			// Start accepting the next connection asynchronously
-			clientAcceptSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
 		}
 
 		bool HandShake (Socket client)
