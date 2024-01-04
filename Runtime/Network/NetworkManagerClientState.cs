@@ -88,7 +88,7 @@ namespace Ivyyy.Network
 			{
 				NetworkBehaviour networkObject = entry.Value;
 
-				if (networkObject.Owner && networkObject.Sync())
+				if (networkObject.Owner)
 					networkPackage.AddValue (GetNetObjectAsValue (networkObject));
 			}
 

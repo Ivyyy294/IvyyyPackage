@@ -36,12 +36,6 @@ namespace Ivyyy.Network
 			AddMethodsWithAttribute();
 		}
 
-		public bool Sync()
-		{
-			//return gameObject.activeInHierarchy;
-			return true;
-		}
-
 		public byte[] GetSerializedData()
 		{
 			//Clear Package
