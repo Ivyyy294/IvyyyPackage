@@ -187,44 +187,44 @@ namespace Ivyyy.Network
 			//float lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 			byte[] sizeBuffer = new byte[sizeof(int)];
 
-			try
-			{
 				while (!shutDown)
 				{
-					//TCP Packages
-					if (socket.Available > 0)
+					try
 					{
-						//Get package size
-						socket.Receive (sizeBuffer);
-						int packageSize = BitConverter.ToInt32 (sizeBuffer, 0);
+						//TCP Packages
+						if (socket.Available > 0)
+						{
+							//Get package size
+							socket.Receive (sizeBuffer);
+							int packageSize = BitConverter.ToInt32 (sizeBuffer, 0);
 
-						//Get package data
-						//lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-						Debug.Log("TCPReceive");
-						byte[] buffer = new byte[packageSize];
-						socket.Receive (buffer);
+							//Get package data
+							//lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+							Debug.Log("TCPReceive");
+							byte[] buffer = new byte[packageSize];
+							socket.Receive (buffer);
 
-						networkPackage.DeserializeData (buffer);
+							networkPackage.DeserializeData (buffer);
 
-						for (int i = 0; i < networkPackage.Count; ++i)
-							NetworkRPC.AddFromSerializedData (networkPackage.Value(i).GetBytes());
+							for (int i = 0; i < networkPackage.Count; ++i)
+								NetworkRPC.AddFromSerializedData (networkPackage.Value(i).GetBytes());
+						}
+
+						//bool timeOut = NetworkManager.Me.Timeout > 0
+						//	&& (DateTimeOffset.Now.ToUnixTimeMilliseconds() - lastPackageTimestamp > NetworkManager.Me.Timeout);
+
+						//if (timeOut)
+						//{
+						//	Debug.Log ("Time out!");
+						//	NetworkManager.Me.onClientTimeOut?.Invoke (socket);
+						//	break;
+						//}
 					}
-
-					//bool timeOut = NetworkManager.Me.Timeout > 0
-					//	&& (DateTimeOffset.Now.ToUnixTimeMilliseconds() - lastPackageTimestamp > NetworkManager.Me.Timeout);
-
-					//if (timeOut)
-					//{
-					//	Debug.Log ("Time out!");
-					//	NetworkManager.Me.onClientTimeOut?.Invoke (socket);
-					//	break;
-					//}
+					catch (Exception e)
+					{
+						Debug.Log (e);
+					}
 				}
-			}
-			catch (Exception e)
-			{
-				Debug.Log (e);
-			}
 
 			//Remove Socket from list
 			tcpSockets.Remove (socket);

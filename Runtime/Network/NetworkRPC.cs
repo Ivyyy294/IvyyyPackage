@@ -53,10 +53,10 @@ namespace Ivyyy.Network
 				NetworkBehaviour networkBehaviour = NetworkBehaviour.guidMap[currentRpc.guid];
 
 				if (!networkBehaviour.Owner && !networkBehaviour.ExecuteRPCCall (currentRpc.methodName))
-					Debug.LogError ("Invalid RPC Method!");
+					Debug.LogError ("Invalid RPC Method! " + currentRpc.guid + " " + currentRpc.methodName);
 			}
 			else
-				Debug.LogError ("Invalid RPC GUID!");
+				Debug.LogError ("Invalid RPC Method! " + currentRpc.guid + " " + currentRpc.methodName);
 		}
 	}
 }
