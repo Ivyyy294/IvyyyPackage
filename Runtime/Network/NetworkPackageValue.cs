@@ -26,6 +26,7 @@ namespace Ivyyy.Network
 		public NetworkPackageValue (char val) {SetValue (BitConverter.GetBytes (val));}
 		public NetworkPackageValue (bool val) {SetValue (BitConverter.GetBytes (val));}
 		public NetworkPackageValue (string val) {SetValue (Encoding.ASCII.GetBytes (val));}
+		public NetworkPackageValue (byte val) {SetValue (new byte[1]{val});}
 		public NetworkPackageValue (byte[] val) {SetValue (val);}
 		public NetworkPackageValue (Vector3 val)
 		{
@@ -54,6 +55,7 @@ namespace Ivyyy.Network
 		public char GetChar() {return BitConverter.ToChar (value, StartIndex);}
 		public bool GetBool() {return BitConverter.ToBoolean (value, StartIndex);}
 		public string GetString() {return Encoding.ASCII.GetString (value, StartIndex, Size() - StartIndex);}
+		public byte GetByte() {return value[0];}
 		public byte[] GetBytes()
 		{
 			byte[] tmp = new byte[value.Length - StartIndex];
