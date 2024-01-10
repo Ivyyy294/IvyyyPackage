@@ -187,46 +187,81 @@ namespace Ivyyy.Network
 			//float lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 			byte[] sizeBuffer = new byte[sizeof(int)];
 
-				while (!shutDown)
+			while (!shutDown && socket.Connected)
+			{
+				try
+				{
+					//TCP Packages
+					if (socket.Available > 0)
+					{
+						//Get package size
+						socket.Receive (sizeBuffer);
+						int packageSize = BitConverter.ToInt32 (sizeBuffer, 0);
+
+						//Get package data
+						//lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+						Debug.Log("TCPReceive");
+						byte[] buffer = new byte[packageSize];
+						socket.Receive (buffer);
+
+						networkPackage.DeserializeData (buffer);
+
+						for (int i = 0; i < networkPackage.Count; ++i)
+							NetworkRPC.AddFromSerializedData (networkPackage.Value(i).GetBytes());
+					}
+				}
+				catch (Exception e)
+				{
+					Debug.Log (e);
+				}
+			}
+
+			//Remove Socket from list
+			if (socket.Connected)
+				RemoveClient (socket);
+		}
+
+		protected void CheckTcpSocketStatus()
+		{
+			Queue <Socket> disconnectedSockets = new Queue<Socket>();
+
+			foreach (Socket i in tcpSockets)
+			{
+				if (i.Available == 0)
 				{
 					try
 					{
-						//TCP Packages
-						if (socket.Available > 0)
-						{
-							//Get package size
-							socket.Receive (sizeBuffer);
-							int packageSize = BitConverter.ToInt32 (sizeBuffer, 0);
+						bool disconnected = i.Poll(1000, SelectMode.SelectRead) && i.Available == 0;
 
-							//Get package data
-							//lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-							Debug.Log("TCPReceive");
-							byte[] buffer = new byte[packageSize];
-							socket.Receive (buffer);
-
-							networkPackage.DeserializeData (buffer);
-
-							for (int i = 0; i < networkPackage.Count; ++i)
-								NetworkRPC.AddFromSerializedData (networkPackage.Value(i).GetBytes());
-						}
-
-						//bool timeOut = NetworkManager.Me.Timeout > 0
-						//	&& (DateTimeOffset.Now.ToUnixTimeMilliseconds() - lastPackageTimestamp > NetworkManager.Me.Timeout);
-
-						//if (timeOut)
-						//{
-						//	Debug.Log ("Time out!");
-						//	NetworkManager.Me.onClientTimeOut?.Invoke (socket);
-						//	break;
-						//}
+						if (disconnected)
+							disconnectedSockets.Enqueue (i);
 					}
-					catch (Exception e)
+					catch
 					{
-						Debug.Log (e);
+						disconnectedSockets.Enqueue (i);
 					}
 				}
+			}
 
-			//Remove Socket from list
+			while (disconnectedSockets.Count > 0)
+			{
+				Socket socket = disconnectedSockets.Dequeue();
+				RemoveClient (socket);
+			}
+		}
+
+		private void RemoveClient(Socket socket)
+		{
+			Debug.Log ("Client disconnected!");
+
+			if (NetworkManager.Me.Host && NetworkManager.Me.onClientDisonnected != null)
+				NetworkManager.Me.onClientDisonnected(socket);
+			else if (!NetworkManager.Me.Host && NetworkManager.Me.onHostDisonnected != null)
+				NetworkManager.Me.onHostDisonnected(socket);
+
+			Debug.Log("Remove udpEndPoint");
+			udpEndPoints.Remove ((IPEndPoint)socket.RemoteEndPoint);
+			Debug.Log("Remove tcpSocket");
 			tcpSockets.Remove (socket);
 			CloseSocket (socket);
 		}

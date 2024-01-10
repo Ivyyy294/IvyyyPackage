@@ -57,6 +57,7 @@ namespace Ivyyy.Network
 
 		public override void Update()
 		{
+			CheckTcpSocketStatus();
 			NetworkRPC.ExecutePendingRPC();
 			SendData();
 		}

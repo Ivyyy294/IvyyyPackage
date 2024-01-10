@@ -26,6 +26,7 @@ namespace Ivyyy.Network
 		public override void Update()
 		{
 			//CheckClientStatus();
+			CheckTcpSocketStatus();
 			SendUPDData();
 			SendTCPData();
 		}
