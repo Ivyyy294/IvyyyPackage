@@ -167,16 +167,18 @@ namespace Ivyyy.Network
 		//TCP
 		protected bool SendTCPData (byte[] data)
 		{
-			try
-			{
-				byte[] buffer = AddSizeHeaderToData(data);
+			byte[] buffer = AddSizeHeaderToData(data);
 
-				foreach (Socket i in tcpSockets)
-					i.Send (buffer);
-			}
-			catch (Exception e)
+			foreach (Socket i in tcpSockets)
 			{
-				Debug.Log (e);
+				try
+				{
+					i.Send (buffer);
+				}
+				catch (Exception e)
+				{
+					Debug.Log (e);
+				}
 			}
 
 			return false;
