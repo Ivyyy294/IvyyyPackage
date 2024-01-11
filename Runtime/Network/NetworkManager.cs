@@ -96,7 +96,7 @@ namespace Ivyyy.Network
 		private void Update()
 		{
 			if (timer < (1f / tickRate))
-				timer += Time.deltaTime;
+				timer += Time.unscaledTime;
 			else
 			{
 				managerState?.Update();
