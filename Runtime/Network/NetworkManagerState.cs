@@ -219,28 +219,30 @@ namespace Ivyyy.Network
 			}
 
 			//Remove Socket from list
-			if (socket.Connected)
-				RemoveClient (socket);
+			CloseSocket (socket);
 		}
 
 		protected void CheckTcpSocketStatus()
 		{
 			Queue <Socket> disconnectedSockets = new Queue<Socket>();
+			int socketCount = tcpSockets.Count;
 
-			foreach (Socket i in tcpSockets)
+			for (int i = 0; i < socketCount; ++i)
 			{
-				if (i.Available == 0)
+				Socket socket = tcpSockets[i];
+
+				if (socket.Available == 0)
 				{
 					try
 					{
-						bool disconnected = i.Poll(1000, SelectMode.SelectRead) && i.Available == 0;
+						bool disconnected = socket.Poll(1000, SelectMode.SelectRead) && socket.Available == 0;
 
 						if (disconnected)
-							disconnectedSockets.Enqueue (i);
+							disconnectedSockets.Enqueue (socket);
 					}
 					catch
 					{
-						disconnectedSockets.Enqueue (i);
+						disconnectedSockets.Enqueue (socket);
 					}
 				}
 			}

@@ -38,7 +38,7 @@ namespace Ivyyy.Network
 		private NetworkManagerState managerState;
 		private float timer = 0f;
 
-		//Public Functions
+		//Public Methods
 		public bool StartHost (int _port)
 		{
 			if (managerState == null)
@@ -77,6 +77,16 @@ namespace Ivyyy.Network
 				return false;
 		}
 
+		public void ShutDown()
+		{
+			if (managerState != null)
+			{
+				managerState.ShutDown();
+				managerState = null;
+			}
+		}
+
+		//Private Methods
 		private void Awake()
 		{
 			if (Me == null)

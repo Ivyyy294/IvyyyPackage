@@ -71,34 +71,6 @@ namespace Ivyyy.Network
 				SendTCPData (networkPackage.GetSerializedData());
 			}
 		}
-		
-		//void CheckClientStatus()
-		//{
-		//	List <NetworkClientThread> invalidClientList = new List<NetworkClientThread>();
-
-		//	//Find invalid client connection
-		//	foreach (NetworkClientThread client in clientList)
-		//	{
-		//		if (client.Status != NetworkClientThread.ConnectionStatus.CONNECTED)
-		//			invalidClientList.Add (client);
-		//	}
-
-		//	foreach (NetworkClientThread client in invalidClientList)
-		//	{
-		//		if (client.Status == NetworkClientThread.ConnectionStatus.DISCONNECTED)
-		//		{
-		//			NetworkManager.Me.onClientDisonnected?.Invoke(client.TcpSocket);
-		//			Debug.Log ("Client disconnected!");
-		//		}
-		//		else if (client.Status == NetworkClientThread.ConnectionStatus.TIME_OUT)
-		//		{
-		//			NetworkManager.Me.onClientTimeOut?.Invoke(client.TcpSocket);
-		//			Debug.Log ("Client timed-out!");
-		//		}
-
-		//		clientList.Remove (client);
-		//	}
-		//}
 
 		Socket GetHostSocket ()
 		{

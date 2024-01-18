@@ -130,22 +130,6 @@ namespace Ivyyy.Network
 				return null;
 			}
 		}
-
-		//void CheckHostStatus()
-		//{
-		//	if (clientThread.Status == NetworkClientThread.ConnectionStatus.DISCONNECTED)
-		//	{
-		//		NetworkManager.Me.onClientDisonnected?.Invoke(clientThread.TcpSocket);
-		//		clientThread.Shutdown();
-		//		Debug.Log ("Client disconnected!");
-		//	}
-		//	else if (clientThread.Status == NetworkClientThread.ConnectionStatus.TIME_OUT)
-		//	{
-		//		NetworkManager.Me.onClientTimeOut?.Invoke(clientThread.TcpSocket);
-		//		clientThread.Shutdown();
-		//		Debug.Log ("Client timed-out!");
-		//	}
-		//}
 	}
 }
 
