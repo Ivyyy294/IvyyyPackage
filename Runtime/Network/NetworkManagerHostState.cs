@@ -10,10 +10,11 @@ namespace Ivyyy.Network
 	class NetworkManagerHostState : NetworkManagerState
 	{
 		Task clientAcceptTask;
+		Socket clientAcceptSocket;
 
 		public override bool Start()
 		{
-			Socket clientAcceptSocket = GetHostSocket();
+			clientAcceptSocket = GetHostSocket();
 
 			udpReceiveTask = Task.Run(()=>{UDPReceive(NetworkManager.Me.Port);});
 
@@ -29,6 +30,12 @@ namespace Ivyyy.Network
 			CheckTcpSocketStatus();
 			SendUPDData();
 			SendTCPData();
+		}
+
+		public override void ShutDown()
+		{
+			CloseSocket (clientAcceptSocket);
+			base.ShutDown();
 		}
 
 		//Private Methods
