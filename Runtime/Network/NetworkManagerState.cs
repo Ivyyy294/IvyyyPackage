@@ -130,7 +130,8 @@ namespace Ivyyy.Network
 		protected void UDPReceive (int port)
 		{
 			NetworkPackage buffer = new NetworkPackage();
-			UdpClient udpClient = new UdpClient(port);
+			UdpClient udpClient = new UdpClient();
+			udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, port));
 			IPEndPoint remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 			byte[] sizeBuffer = new byte[sizeof(int)];
 
