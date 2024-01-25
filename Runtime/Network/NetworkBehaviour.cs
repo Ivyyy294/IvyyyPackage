@@ -26,7 +26,10 @@ namespace Ivyyy.Network
 		protected bool Host { get { return !NetworkManager.Me || NetworkManager.Me.Host; } }
 
 		//RPC
-		private Dictionary<string, Delegate> delegateDictionary = new Dictionary<string, Delegate>();
+		public delegate void RPCDelegateSimple ();
+		public delegate void RPCDelegateParameter (byte[] data);
+
+		private Dictionary<string, Tuple <Delegate, bool>> delegateDictionary = new Dictionary<string, Tuple <Delegate, bool>>();
 
 		//### Methods ###
 		//Public
@@ -83,10 +86,10 @@ namespace Ivyyy.Network
 		}
 
 		//### RPC ###
-		protected void InvokeRPC(string methodeName)
+		protected void InvokeRPC(string methodeName, byte[] data = null)
 		{
 			if (Owner)
-				NetworkRPC.AddOutgoingPendingRPC(guid, methodeName);
+				NetworkRPC.AddOutgoingPendingRPC(guid, methodeName, data);
 		}
 
 		void AddMethodsWithAttribute()
@@ -98,19 +101,45 @@ namespace Ivyyy.Network
 			{
 				if (Attribute.IsDefined(method, typeof(RPCAttribute)))
 				{
+					bool hasAttributes = HasAttributes(method);
+
 					// Create a delegate for the method and add it to the list
-					Delegate methodDelegate = Delegate.CreateDelegate(typeof(Action), this, method);
-					delegateDictionary[method.Name] = methodDelegate;
+					Delegate methodDelegate = hasAttributes 
+						? Delegate.CreateDelegate(typeof(RPCDelegateParameter), this, method)
+						: Delegate.CreateDelegate(typeof(RPCDelegateSimple), this, method);
+
+					delegateDictionary[method.Name] = new Tuple <Delegate, bool> (methodDelegate, hasAttributes);
 				}
 			}
 		}
 
-		public bool ExecuteRPCCall(string rpcName)
+		public bool HasAttributes (MethodInfo methodInfo)
+		{
+			ParameterInfo[] parameters = methodInfo.GetParameters();
+
+			if (parameters.Length == 0)
+				return false;
+			else if (parameters.Length != 1)
+				throw new InvalidOperationException($"Method {methodInfo.Name} has an invalid number of parameters.");
+
+			for (int i = 0; i < parameters.Length; i++)
+			{
+				if (parameters[i].ParameterType != typeof (byte[]))
+					throw new InvalidOperationException($"Parameter {i + 1} of method {methodInfo.Name} has an invalid type.");
+			}
+
+			return true;
+		}
+
+		public bool ExecuteRPCCall(string rpcName, byte[] data)
 		{
 			if (delegateDictionary.TryGetValue(rpcName, out var methodDelegate))
 			{
-				// Invoke the delegate if found
-				((Action)methodDelegate).Invoke();
+				if (methodDelegate.Item2)
+					((RPCDelegateParameter) methodDelegate.Item1).Invoke (data);
+				else
+					((RPCDelegateSimple) methodDelegate.Item1).Invoke ();
+
 				return true;
 			}
 

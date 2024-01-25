@@ -13,29 +13,45 @@ namespace Ivyyy.Network
 		public static Stack <NetworkRPC> pendingRpcStack = new Stack<NetworkRPC>();
 		public string guid;
 		public string methodName;
+		public byte[] data;
 
 		public byte[] GetSerializedData()
 		{
-			string data = guid + ";" + methodName;
-			return Encoding.ASCII.GetBytes (data);
+			NetworkPackage networkPackage = new NetworkPackage();
+			networkPackage.AddValue (new NetworkPackageValue (guid));
+			networkPackage.AddValue (new NetworkPackageValue (methodName));
+
+			if (data != null)
+				networkPackage.AddValue (new NetworkPackageValue (data));
+
+			return networkPackage.GetSerializedData();
 		}
 
-		public static void AddOutgoingPendingRPC (string _guid, string _methodName)
+		public static void AddOutgoingPendingRPC (string _guid, string _methodName, byte[] data)
 		{
 			NetworkRPC rpc = new NetworkRPC();
 			rpc.guid = _guid;
 			rpc.methodName = _methodName;
+			rpc.data = data;
 
 			outgoingRpcStack.Push (rpc);
 		}
 
 		public static void AddFromSerializedData (byte[] data)
 		{
-			string[] tmp = Encoding.ASCII.GetString (data, 0, data.Length).Split (";");
+			NetworkPackage networkPackage = new NetworkPackage();
+			networkPackage.DeserializeData (data);
+
 			NetworkRPC rpc = new NetworkRPC();
 
-			rpc.guid = tmp[0];
-			rpc.methodName = tmp[1];
+			if (networkPackage.Count >= 2)
+			{
+				rpc.guid = networkPackage.Value (0).GetString();
+				rpc.methodName = networkPackage.Value (1).GetString();
+			}
+
+			if (networkPackage.Count >= 3)
+				rpc.data = networkPackage.Value(2).GetBytes();
 
 			pendingRpcStack.Push (rpc);
 		}
@@ -52,7 +68,7 @@ namespace Ivyyy.Network
 			{
 				NetworkBehaviour networkBehaviour = NetworkBehaviour.guidMap[currentRpc.guid];
 
-				if (!networkBehaviour.Owner && !networkBehaviour.ExecuteRPCCall (currentRpc.methodName))
+				if (!networkBehaviour.Owner && !networkBehaviour.ExecuteRPCCall (currentRpc.methodName, currentRpc.data))
 					Debug.LogError ("Invalid RPC Method! " + currentRpc.guid + " " + currentRpc.methodName);
 			}
 			else
