@@ -19,7 +19,7 @@ namespace Ivyyy.Network
 		//Keeps track of all guids
 		static Dictionary <string, string> guidMap = new Dictionary<string, string>();
 
-		private void Awake()
+		private void Start()
 		{
 			if (!Application.isPlaying)
 				return;
