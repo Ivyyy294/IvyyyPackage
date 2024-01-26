@@ -19,7 +19,7 @@ namespace Ivyyy.Network
 		//Keeps track of all guids
 		static Dictionary <string, string> guidMap = new Dictionary<string, string>();
 
-		private void Start()
+		private void Awake()
 		{
 			if (!Application.isPlaying)
 				return;
@@ -58,7 +58,9 @@ namespace Ivyyy.Network
 			for (int i = 0; i < networkBehaviours.Length; ++i)
 			{
 				NetworkBehaviour networkBehaviour = networkBehaviours[i];
-				string name = gameObject.scene.name + gameObject.name + i;
+				string name = gameObject.scene.name 
+					+ (transform.parent != null ? transform.parent.name : "")
+					+ gameObject.name + i;
 
 				if (!IsGuidValid(networkBehaviour) || GuidContracted(networkBehaviour, name))
 				{
