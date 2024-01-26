@@ -53,7 +53,10 @@ namespace Ivyyy.Network
 			if (networkPackage.Count >= 3)
 				rpc.data = networkPackage.Value(2).GetBytes();
 
-			pendingRpcStack.Push (rpc);
+			if (rpc.guid != null)
+				pendingRpcStack.Push (rpc);
+			else
+				Debug.LogError ("Invalid RPC Package!");
 		}
 
 		public static void ExecutePendingRPC()
@@ -64,7 +67,7 @@ namespace Ivyyy.Network
 
 		public static void ExecutePendingRPC (NetworkRPC currentRpc)
 		{
-			if (NetworkBehaviour.guidMap.ContainsKey (currentRpc.guid))
+			if (currentRpc.guid != null && NetworkBehaviour.guidMap.ContainsKey (currentRpc.guid))
 			{
 				NetworkBehaviour networkBehaviour = NetworkBehaviour.guidMap[currentRpc.guid];
 
