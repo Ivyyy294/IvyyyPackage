@@ -201,11 +201,15 @@ namespace Ivyyy.Network
 						socket.Receive (sizeBuffer);
 						int packageSize = BitConverter.ToInt32 (sizeBuffer, 0);
 
+						while (socket.Available < packageSize)
+							Debug.Log ("TCPReceive: Waiting for missing package data...");
+
 						//Get package data
 						//lastPackageTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-						Debug.Log("TCPReceive");
+						Debug.Log("TCPReceive: Package data complete!");
+
 						byte[] buffer = new byte[packageSize];
-						socket.Receive (buffer);
+						int bytesReceived = socket.Receive (buffer);
 
 						networkPackage.DeserializeData (buffer);
 
