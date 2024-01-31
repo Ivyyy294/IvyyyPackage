@@ -59,7 +59,7 @@ namespace Ivyyy.Network
 			{
 				NetworkBehaviour networkBehaviour = networkBehaviours[i];
 				string name = gameObject.scene.name 
-					+ (transform.parent != null ? transform.parent.name : "")
+					+ GetParentString()
 					+ gameObject.name + i;
 
 				if (!IsGuidValid(networkBehaviour) || GuidContracted(networkBehaviour, name))
@@ -85,6 +85,20 @@ namespace Ivyyy.Network
 			return IsGuidValid (networkBehaviour)
 				&& guidMap.ContainsKey (networkBehaviour.GUID)
 				&& guidMap[networkBehaviour.GUID] != name;
+		}
+
+		private string GetParentString()
+		{
+			string parentStr = "";
+			Transform parent = transform.parent;
+
+			while (parent != null)
+			{
+				parentStr += parent.name;
+				parent = parent.parent;
+			}
+
+			return parentStr;
 		}
 #endif
 	}

@@ -33,8 +33,13 @@ namespace Ivyyy.Network
 
 		protected void AddTcpSocket (Socket tcpSocket)
 		{
-			tcpSockets.Add (tcpSocket);
-			tcpReceiveTask.Add(Task.Run(()=>{TCPReceive(tcpSocket);}));
+			if (tcpSocket != null)
+			{
+				tcpSockets.Add (tcpSocket);
+				tcpReceiveTask.Add(Task.Run(()=>{TCPReceive(tcpSocket);}));
+			}
+			else
+				Debug.LogError("Invalid tcpSocket!");
 		}
 
 		//Public Methods
@@ -106,6 +111,7 @@ namespace Ivyyy.Network
 
 				socket.Close();
 				socket.Dispose();
+				socket = null;
 			}
 		}
 
@@ -121,7 +127,7 @@ namespace Ivyyy.Network
 			}
 			catch (Exception e)
 			{
-				Debug.Log (e);
+				Debug.LogError(e);
 			}
 
 			return false;
@@ -178,7 +184,7 @@ namespace Ivyyy.Network
 				}
 				catch (Exception e)
 				{
-					Debug.Log (e);
+					Debug.LogError (e);
 				}
 			}
 
@@ -219,7 +225,7 @@ namespace Ivyyy.Network
 				}
 				catch (Exception e)
 				{
-					Debug.Log (e);
+					Debug.LogError (e);
 				}
 			}
 
@@ -245,8 +251,9 @@ namespace Ivyyy.Network
 						if (disconnected)
 							disconnectedSockets.Enqueue (socket);
 					}
-					catch
+					catch (Exception e)
 					{
+						Debug.LogError (e);
 						disconnectedSockets.Enqueue (socket);
 					}
 				}

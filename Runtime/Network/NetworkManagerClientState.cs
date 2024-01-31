@@ -127,6 +127,7 @@ namespace Ivyyy.Network
 			}
 			catch (Exception excp)
 			{
+				Debug.LogError (excp);
 				return null;
 			}
 		}
