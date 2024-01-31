@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using UnityEngine;
@@ -60,21 +61,30 @@ namespace Ivyyy.Network
 
 		public bool StartClient (string ip, int _port)
 		{
+			bool ok = false;
+			
 			if (managerState == null)
 			{
-				port = _port;
-				host = false;
-				Debug.Log("Started Client Session");
-				managerState = new NetworkManagerClientState(ip);
-				bool ok = managerState.Start();
+				try
+				{
+					port = _port;
+					host = false;
+					Debug.Log("Started Client Session");
+					managerState = new NetworkManagerClientState(ip);
+					ok = managerState.Start();
+				}
+				catch (Exception excp)
+				{
+					Debug.Log (excp);
+				}
 
 				if (!ok)
 					managerState = null;
 
 				return ok;
 			}
-			else
-				return false;
+			
+			return ok;
 		}
 
 		public void ShutDown()
