@@ -91,6 +91,7 @@ namespace Ivyyy.Network
 		{
 			if (managerState != null)
 			{
+				host = false;
 				managerState.ShutDown();
 				managerState = null;
 			}

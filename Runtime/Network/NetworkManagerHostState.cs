@@ -34,7 +34,7 @@ namespace Ivyyy.Network
 
 		public override void ShutDown()
 		{
-			CloseSocket (clientAcceptSocket);
+			CloseSocket (ref clientAcceptSocket);
 			base.ShutDown();
 		}
 
@@ -122,7 +122,7 @@ namespace Ivyyy.Network
 						Debug.Log("Init complete!");
 					}
 					else
-						CloseSocket (client);
+						CloseSocket (ref client);
 				}
 			}
 			catch (Exception e)

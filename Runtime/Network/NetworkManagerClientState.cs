@@ -50,7 +50,7 @@ namespace Ivyyy.Network
 				return true;
 			}
 			else
-				CloseSocket (socket);
+				CloseSocket (ref socket);
 
 			return false;;
 		}

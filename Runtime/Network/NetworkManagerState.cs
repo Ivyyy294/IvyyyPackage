@@ -101,7 +101,7 @@ namespace Ivyyy.Network
 			return new NetworkPackageValue (payload);
 		}
 
-		protected void CloseSocket (Socket socket)
+		protected void CloseSocket (ref Socket socket)
 		{
 			Debug.Log ("close socket");
 			if (socket != null)
@@ -169,6 +169,8 @@ namespace Ivyyy.Network
 					}
 				}
 			}
+
+			udpClient.Close();
 		}
 
 		//TCP
@@ -230,7 +232,7 @@ namespace Ivyyy.Network
 			}
 
 			//Remove Socket from list
-			CloseSocket (socket);
+			CloseSocket (ref socket);
 		}
 
 		protected void CheckTcpSocketStatus()
@@ -279,7 +281,7 @@ namespace Ivyyy.Network
 			udpEndPoints.Remove ((IPEndPoint)socket.RemoteEndPoint);
 			Debug.Log("Remove tcpSocket");
 			tcpSockets.Remove (socket);
-			CloseSocket (socket);
+			CloseSocket (ref socket);
 		}
 
 		private byte[] AddSizeHeaderToData (byte[] data)
