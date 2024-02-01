@@ -50,29 +50,12 @@ namespace Ivyyy.Network
 			if (Application.isPlaying)
 				return;
 
-			if  (gameObject.scene.path == null)
-				return;
-
 			networkBehaviours = GetComponents <NetworkBehaviour>();
 
-			for (int i = 0; i < networkBehaviours.Length; ++i)
-			{
-				NetworkBehaviour networkBehaviour = networkBehaviours[i];
-				string name = gameObject.scene.name 
-					+ GetParentString()
-					+ gameObject.name + i;
-
-				if (!IsGuidValid(networkBehaviour) || GuidContracted(networkBehaviour, name))
-				{
-					networkBehaviour.GenerateGuid();
-
-					EditorUtility.SetDirty(networkBehaviour);
-					EditorSceneManager.MarkSceneDirty(gameObject.scene);
-				}
-
-				if (!guidMap.ContainsKey (networkBehaviour.GUID))
-					guidMap.Add (networkBehaviour.GUID, name);
-			}
+			if (gameObject.scene.path.Length == 0)
+				ClearGUIDs();
+			else
+				RefreshGUIDs();
 		}
 		
 		public bool IsGuidValid(NetworkBehaviour networkBehaviour)
@@ -99,6 +82,40 @@ namespace Ivyyy.Network
 			}
 
 			return parentStr;
+		}
+
+		private void ClearGUIDs()
+		{
+			for (int i = 0; i < networkBehaviours.Length; ++i)
+			{
+				NetworkBehaviour networkBehaviour = networkBehaviours[i];
+				networkBehaviour.ResetGUID();
+			}
+		}
+
+		private void RefreshGUIDs()
+		{
+			for (int i = 0; i < networkBehaviours.Length; ++i)
+			{
+				NetworkBehaviour networkBehaviour = networkBehaviours[i];
+
+				string name = gameObject.scene.name 
+					+ GetParentString()
+					+ gameObject.name + i;
+
+				if (!IsGuidValid(networkBehaviour)/* || GuidContracted(networkBehaviour, name)*/)
+				{
+					Debug.Log ("Refresh GUID: " + name);
+
+					networkBehaviour.GenerateGuid();
+
+					EditorUtility.SetDirty(networkBehaviour);
+					EditorSceneManager.MarkSceneDirty(gameObject.scene);
+				}
+
+				if (!guidMap.ContainsKey (networkBehaviour.GUID))
+					guidMap.Add (networkBehaviour.GUID, name);
+			}
 		}
 #endif
 	}

@@ -34,7 +34,7 @@ namespace Ivyyy.Network
 
 		public override void ShutDown()
 		{
-			CloseSocket (ref clientAcceptSocket);
+			CloseSocket (clientAcceptSocket);
 			base.ShutDown();
 		}
 
@@ -64,12 +64,12 @@ namespace Ivyyy.Network
 
 				//Add outgoing Rpc to stack
 				while (NetworkRPC.outgoingRpcStack.Count > 0)
-					networkPackage.AddValue (new NetworkPackageValue (NetworkRPC.outgoingRpcStack.Pop().GetSerializedData()));
+					networkPackage.AddValue (new NetworkPackageValue (NetworkRPC.outgoingRpcStack.Dequeue().GetSerializedData()));
 
 				//Execute pendingRpc and add it to package
 				while (NetworkRPC.pendingRpcStack.Count > 0)
 				{
-					NetworkRPC pendingRPC = (NetworkRPC.pendingRpcStack.Pop());
+					NetworkRPC pendingRPC = (NetworkRPC.pendingRpcStack.Dequeue());
 					NetworkRPC.ExecutePendingRPC (pendingRPC);
 					networkPackage.AddValue (new NetworkPackageValue (pendingRPC.GetSerializedData()));
 				}
@@ -122,7 +122,7 @@ namespace Ivyyy.Network
 						Debug.Log("Init complete!");
 					}
 					else
-						CloseSocket (ref client);
+						CloseSocket (client);
 				}
 			}
 			catch (Exception e)

@@ -60,6 +60,11 @@ namespace Ivyyy.Network
 			return ok;
 		}
 
+		public void ResetGUID()
+		{
+			guid = "";
+		}
+
 		public void GenerateGuid()
 		{
 			guid = System.Guid.NewGuid().ToString();

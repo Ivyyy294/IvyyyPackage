@@ -9,8 +9,9 @@ namespace Ivyyy.Network
 {
 	class NetworkRPC
 	{
-		public static Stack <NetworkRPC> outgoingRpcStack = new Stack<NetworkRPC>();
-		public static Stack <NetworkRPC> pendingRpcStack = new Stack<NetworkRPC>();
+		public static Queue <NetworkRPC> outgoingRpcStack = new Queue<NetworkRPC>();
+		public static Queue <NetworkRPC> pendingRpcStack = new Queue<NetworkRPC>();
+		public static Queue <NetworkRPC> fallbackRpcStack = new Queue<NetworkRPC>();
 		public string guid;
 		public string methodName;
 		public byte[] data;
@@ -34,7 +35,7 @@ namespace Ivyyy.Network
 			rpc.methodName = _methodName;
 			rpc.data = data;
 
-			outgoingRpcStack.Push (rpc);
+			outgoingRpcStack.Enqueue (rpc);
 		}
 
 		public static void AddFromSerializedData (byte[] data)
@@ -54,7 +55,7 @@ namespace Ivyyy.Network
 				rpc.data = networkPackage.Value(2).GetBytes();
 
 			if (rpc.guid != null)
-				pendingRpcStack.Push (rpc);
+				pendingRpcStack.Enqueue (rpc);
 			else
 				Debug.LogError ("Invalid RPC Package!");
 		}
@@ -62,20 +63,30 @@ namespace Ivyyy.Network
 		public static void ExecutePendingRPC()
 		{
 			while (pendingRpcStack.Count > 0)
-				ExecutePendingRPC (pendingRpcStack.Pop());
+				ExecutePendingRPC (pendingRpcStack.Dequeue());
+
+			while (fallbackRpcStack.Count > 0)
+				pendingRpcStack.Enqueue (fallbackRpcStack.Dequeue());
 		}
 
 		public static void ExecutePendingRPC (NetworkRPC currentRpc)
 		{
-			if (currentRpc.guid != null && NetworkBehaviour.guidMap.ContainsKey (currentRpc.guid))
+			if (NetworkBehaviour.guidMap.ContainsKey (currentRpc.guid))
 			{
 				NetworkBehaviour networkBehaviour = NetworkBehaviour.guidMap[currentRpc.guid];
 
 				if (!networkBehaviour.Owner && !networkBehaviour.ExecuteRPCCall (currentRpc.methodName, currentRpc.data))
 					Debug.LogError ("Invalid RPC Method! " + currentRpc.guid + " " + currentRpc.methodName);
 			}
+			else if (currentRpc.guid != null)
+			{
+				Debug.Log ("Stashed RPC for later");
+				NetworkRPC.fallbackRpcStack.Enqueue (currentRpc);
+			}
 			else
+			{
 				Debug.LogError ("Invalid RPC Method! " + currentRpc.guid + " " + currentRpc.methodName);
+			}
 		}
 	}
 }

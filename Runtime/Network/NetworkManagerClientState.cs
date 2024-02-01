@@ -50,7 +50,7 @@ namespace Ivyyy.Network
 				return true;
 			}
 			else
-				CloseSocket (ref socket);
+				CloseSocket (socket);
 
 			return false;;
 		}
@@ -101,7 +101,7 @@ namespace Ivyyy.Network
 				networkPackage.Clear();
 
 				while (NetworkRPC.outgoingRpcStack.Count > 0)
-					networkPackage.AddValue (new NetworkPackageValue (NetworkRPC.outgoingRpcStack.Pop().GetSerializedData()));
+					networkPackage.AddValue (new NetworkPackageValue (NetworkRPC.outgoingRpcStack.Dequeue().GetSerializedData()));
 
 				SendTCPData (networkPackage.GetSerializedData());
 			}
