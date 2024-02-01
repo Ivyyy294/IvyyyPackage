@@ -17,7 +17,7 @@ public class GameSettings
 	private GameSettings()
 	{
 		audioSettings = new AudioSettings();
-		graphicSettings = new GraphicSettings();
+		//graphicSettings = new GraphicSettings();
 	}
 
 	//Public Functions
