@@ -251,7 +251,10 @@ namespace Ivyyy.Network
 						bool disconnected = socket.Poll(1000, SelectMode.SelectRead) && socket.Available == 0;
 
 						if (disconnected)
+						{
+							Debug.LogError ("Socket timed out!");
 							disconnectedSockets.Enqueue (socket);
+						}
 					}
 					catch (Exception e)
 					{
