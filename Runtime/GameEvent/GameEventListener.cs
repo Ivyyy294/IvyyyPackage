@@ -11,6 +11,7 @@ namespace Ivyyy.GameEvent
 		public void OnEventRaisedBool (bool val);
 		public void OnEventRaisedInt (int val);
 		public void OnEventRaisedFloat (float val);
+		public void OnEventRaisedString (string val);
 	}
 
 	public class GameEventListener : MonoBehaviour, IGameEventListener
@@ -20,6 +21,7 @@ namespace Ivyyy.GameEvent
 		public UnityEvent <bool> responseBool;
 		public UnityEvent <int> responseInt;
 		public UnityEvent <float> responseFloat;
+		public UnityEvent <string> responseString;
 
 		private void OnEnable()
 		{
@@ -55,6 +57,12 @@ namespace Ivyyy.GameEvent
 		{
 			if (responseFloat != null)
 				responseFloat.Invoke(val);
+		}
+		
+		public void OnEventRaisedString(string val)
+		{
+			if (responseString != null)
+				responseString.Invoke(val);
 		}
 	}
 }

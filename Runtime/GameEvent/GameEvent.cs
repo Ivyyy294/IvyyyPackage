@@ -32,6 +32,12 @@ namespace Ivyyy.GameEvent
 			Debug.Log("Raise Event: " + name + " " + val);
 			listeners.ForEach(x => x.OnEventRaisedFloat(val));
 		}
+		
+		public void Raise(string val)
+		{
+			Debug.Log("Raise Event: " + name + " " + val);
+			listeners.ForEach(x => x.OnEventRaisedString(val));
+		}
 
 		public void RegisterListener(IGameEventListener listener)
 		{
