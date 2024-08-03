@@ -3,63 +3,68 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class GraphicSettings : ISettingContainer
+namespace Ivyyy
 {
-	public class Setting
+	public class GraphicSettings : ISettingContainer
 	{
-		public int width;
-		public int height;
-
-		public Setting() {}
-		public Setting (Resolution val)
+		public class Setting
 		{
-			width = val.width;
-			height = val.height;
+			public int width;
+			public int height;
+
+			public Setting() {}
+			public Setting (Resolution val)
+			{
+				width = val.width;
+				height = val.height;
+			}
+
+			public string GetDisplayName() {return width.ToString() + "x" + height.ToString();}
+
+			public bool Compare (Setting val)
+			{
+				return width == val.width
+					&& height == val.height;
+			}
 		}
 
-		public string GetDisplayName() {return width.ToString() + "x" + height.ToString();}
+		public Setting currentSetting = new Setting();
+		public List <Setting> availableSettings = new List<Setting>();
+		public bool fullscreen = true;
+		public Resolution resolution;
 
-		public bool Compare (Setting val)
+		public GraphicSettings()
 		{
-			return width == val.width
-				&& height == val.height;
-		}
-	}
-
-	public Setting currentSetting = new Setting();
-	public List <Setting> availableSettings = new List<Setting>();
-	public bool fullscreen = true;
-	public Resolution resolution;
-
-	public GraphicSettings()
-	{
-		for (int i = Screen.resolutions.Length -1; i > 0; --i)
-		{
-			Setting tmp = new Setting (Screen.resolutions[i]);
+			for (int i = Screen.resolutions.Length -1; i > 0; --i)
+			{
+				Setting tmp = new Setting (Screen.resolutions[i]);
 			
-			if (!availableSettings.Any(x=>x.Compare(tmp)))
-				availableSettings.Add (tmp);
+				if (!availableSettings.Any(x=>x.Compare(tmp)))
+					availableSettings.Add (tmp);
+			}
+
+			LoadSettings();
 		}
 
-		LoadSettings();
-	}
+		public void SaveSettings()
+		{
+			PlayerPrefs.SetInt ("IvyyyFullscreen", fullscreen ? 1 : 0);
+			PlayerPrefs.SetInt ("IvyyyresolutionW", currentSetting.width);
+			PlayerPrefs.SetInt ("IvyyyresolutionH", currentSetting.height);
+		}
 
-	public void SaveSettings()
-	{
-		PlayerPrefs.SetInt ("IvyyyFullscreen", fullscreen ? 1 : 0);
-		PlayerPrefs.SetInt ("IvyyyresolutionW", currentSetting.width);
-		PlayerPrefs.SetInt ("IvyyyresolutionH", currentSetting.height);
-	}
+		public void LoadSettings()
+		{
+			currentSetting.width = PlayerPrefs.GetInt("IvyyyresolutionW");
+			currentSetting.height = PlayerPrefs.GetInt("IvyyyresolutionH");
+			fullscreen = PlayerPrefs.GetInt("IvyyyFullscreen") > 0 ? true : false;
 
-	public void LoadSettings()
-	{
-		currentSetting.width = PlayerPrefs.GetInt("IvyyyresolutionW");
-		currentSetting.height = PlayerPrefs.GetInt("IvyyyresolutionH");
-		fullscreen = PlayerPrefs.GetInt("IvyyyFullscreen") > 0 ? true : false;
-
-		if (currentSetting.width == 0 || currentSetting.height == 0)
-			currentSetting = new Setting (Screen.currentResolution);
+			if (currentSetting.width == 0 || currentSetting.height == 0)
+				currentSetting = new Setting (Screen.currentResolution);
 		
-		Screen.SetResolution (currentSetting.width, currentSetting.height, fullscreen);
+			Screen.SetResolution (currentSetting.width, currentSetting.height, fullscreen);
+		}
 	}
+
 }
+

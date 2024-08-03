@@ -2,47 +2,55 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AudioSettings : ISettingContainer
+namespace Ivyyy
 {
-	public float sfxVolume = 1f;
-	public float musicVolume = 1f;
-	public float ambientVolume = 1f;
-	public float uiVolume = 1f;
-	public float voiceLine = 1f;
-	public bool subtitle = true;
-
-	public void SaveSettings()
+	public class AudioSettings : ISettingContainer
 	{
-		PlayerPrefs.SetFloat("IvyyySfxVolume", sfxVolume);
-		PlayerPrefs.SetFloat("IvyyyMusicVolume", musicVolume);
-		PlayerPrefs.SetFloat("IvyyyAmbientVolume", ambientVolume);
-		PlayerPrefs.SetFloat("IvyyyUiVolume", uiVolume);
-		PlayerPrefs.SetFloat("IvyyyVoiceLine", voiceLine);
-		PlayerPrefs.SetFloat ("IvyyySubtitle", subtitle ? 1f : 0f);
-        PlayerPrefs.Save();
-	}
+		public float m_masterVolume;
+		public float sfxVolume = 1f;
+		public float musicVolume = 1f;
+		public float ambientVolume = 1f;
+		public float uiVolume = 1f;
+		public float voiceLine = 1f;
+		public bool subtitle = true;
 
-    public AudioSettings()
-    {
-		LoadSettings();
-    }
+		public void SaveSettings()
+		{
+			PlayerPrefs.SetFloat("IvyyyMasterVolume", m_masterVolume);
+			PlayerPrefs.SetFloat("IvyyySfxVolume", sfxVolume);
+			PlayerPrefs.SetFloat("IvyyyMusicVolume", musicVolume);
+			PlayerPrefs.SetFloat("IvyyyAmbientVolume", ambientVolume);
+			PlayerPrefs.SetFloat("IvyyyUiVolume", uiVolume);
+			PlayerPrefs.SetFloat("IvyyyVoiceLine", voiceLine);
+			PlayerPrefs.SetFloat("IvyyySubtitle", subtitle ? 1f : 0f);
+			PlayerPrefs.Save();
+		}
 
-    //Private Functions
-	public void LoadSettings()
-	{
-		sfxVolume = LoadValue ("IvyyySfxVolume");
-		musicVolume = LoadValue ("IvyyyMusicVolume");
-		ambientVolume = LoadValue ("IvyyyAmbientVolume");
-		uiVolume = LoadValue ("IvyyyUiVolume");
-		voiceLine = LoadValue ("IvyyyVoiceLine");
-		subtitle = LoadValue ("IvyyySubtitle") > 0f ? true: false;
-	}
+		public AudioSettings()
+		{
+			LoadSettings();
+		}
 
-	float LoadValue (string key)
-	{
-		if (PlayerPrefs.HasKey (key))
-			return PlayerPrefs.GetFloat (key);
-		else
-			return 1f;
+		//Private Functions
+		public void LoadSettings()
+		{
+			m_masterVolume = LoadValue("IvyyyMasterVolume");
+			sfxVolume = LoadValue("IvyyySfxVolume");
+			musicVolume = LoadValue("IvyyyMusicVolume");
+			ambientVolume = LoadValue("IvyyyAmbientVolume");
+			uiVolume = LoadValue("IvyyyUiVolume");
+			voiceLine = LoadValue("IvyyyVoiceLine");
+			subtitle = LoadValue("IvyyySubtitle") > 0f ? true : false;
+		}
+
+		float LoadValue(string key)
+		{
+			if (PlayerPrefs.HasKey(key))
+				return PlayerPrefs.GetFloat(key);
+			else
+				return 1f;
+		}
 	}
 }
+
+
