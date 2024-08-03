@@ -19,7 +19,7 @@ namespace Ivyyy.Network
 
 		protected override void SetPackageData()
 		{
-			networkPackage.AddValue (new NetworkPackageValue (currentScene));
+			SerializedPackage.AddValue (new SerializedPackageValue (currentScene));
 		}
 
 		private void Awake()
@@ -41,8 +41,8 @@ namespace Ivyyy.Network
 		// Update is called once per frame
 		void Update()
 		{
-			if (!Owner && networkPackage.Available)
-				currentScene = networkPackage.Value(0).GetInt32();
+			if (!Owner && SerializedPackage.Available)
+				currentScene = SerializedPackage.Value(0).GetInt32();
 
 			if (currentScene != SceneManager.GetActiveScene().buildIndex)
 				SceneManager.LoadScene (currentScene);

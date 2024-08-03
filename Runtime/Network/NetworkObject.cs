@@ -14,7 +14,7 @@ namespace Ivyyy.Network
     public class NetworkObject : MonoBehaviour
     {
 		private NetworkBehaviour[] networkBehaviours;
-		private NetworkPackage package = new NetworkPackage();
+		private SerializedPackage package = new SerializedPackage();
 
 		//Keeps track of all guids
 		static Dictionary <string, string> guidMap = new Dictionary<string, string>();

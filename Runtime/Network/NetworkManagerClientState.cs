@@ -81,8 +81,8 @@ namespace Ivyyy.Network
 
 		void SendData()
 		{
-			//Reset networkPackage
-			networkPackage.Clear();
+			//Reset SerializedPackage
+			SerializedPackage.Clear();
 
 			//Only Update owned NetworkObject
 			foreach (KeyValuePair<string, NetworkBehaviour> entry in NetworkBehaviour.guidMap)
@@ -90,20 +90,20 @@ namespace Ivyyy.Network
 				NetworkBehaviour networkObject = entry.Value;
 
 				if (networkObject.Owner)
-					networkPackage.AddValue (GetNetObjectAsValue (networkObject));
+					SerializedPackage.AddValue (GetNetObjectAsValue (networkObject));
 			}
 
-			SendUDPData (networkPackage.GetSerializedData());
+			SendUDPData (SerializedPackage.GetSerializedData());
 
 			//Send TCP Data
 			if (NetworkRPC.outgoingRpcStack.Count > 0)
 			{
-				networkPackage.Clear();
+				SerializedPackage.Clear();
 
 				while (NetworkRPC.outgoingRpcStack.Count > 0)
-					networkPackage.AddValue (new NetworkPackageValue (NetworkRPC.outgoingRpcStack.Dequeue().GetSerializedData()));
+					SerializedPackage.AddValue (new SerializedPackageValue (NetworkRPC.outgoingRpcStack.Dequeue().GetSerializedData()));
 
-				SendTCPData (networkPackage.GetSerializedData());
+				SendTCPData (SerializedPackage.GetSerializedData());
 			}
 		}
 

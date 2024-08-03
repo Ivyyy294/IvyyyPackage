@@ -22,7 +22,7 @@ namespace Ivyyy.Network
 		[SerializeField] string guid = null;
 
 		//Protected
-		protected NetworkPackage networkPackage;
+		protected SerializedPackage SerializedPackage;
 		protected bool Host { get { return !NetworkManager.Me || NetworkManager.Me.Host; } }
 
 		//RPC
@@ -35,24 +35,24 @@ namespace Ivyyy.Network
 		//Public
 		public NetworkBehaviour()
 		{
-			networkPackage = backBuffer1;
+			SerializedPackage = backBuffer1;
 			AddMethodsWithAttribute();
 		}
 
 		public byte[] GetSerializedData()
 		{
 			//Clear Package
-			networkPackage.Clear();
+			SerializedPackage.Clear();
 
 			//Call abstract SetPackageData
 			SetPackageData();
 
-			return networkPackage.GetSerializedData();
+			return SerializedPackage.GetSerializedData();
 		}
 
 		public bool DeserializeData(byte[] rawData)
 		{
-			NetworkPackage backBuffer = GetBackBuffer();
+			SerializedPackage backBuffer = GetBackBuffer();
 			bool ok = backBuffer.DeserializeData(rawData);
 
 			SwapBuffer();
@@ -74,17 +74,17 @@ namespace Ivyyy.Network
 		protected abstract void SetPackageData();
 
 		//### Back Buffer ###
-		private NetworkPackage backBuffer1 = new NetworkPackage();
-		private NetworkPackage backBuffer2 = new NetworkPackage();
+		private SerializedPackage backBuffer1 = new SerializedPackage();
+		private SerializedPackage backBuffer2 = new SerializedPackage();
 
 		private void SwapBuffer()
 		{
-			networkPackage = GetBackBuffer();
+			SerializedPackage = GetBackBuffer();
 		}
 
-		NetworkPackage GetBackBuffer()
+		SerializedPackage GetBackBuffer()
 		{
-			if (networkPackage == backBuffer1)
+			if (SerializedPackage == backBuffer1)
 				return backBuffer2;
 			else
 				return backBuffer1;

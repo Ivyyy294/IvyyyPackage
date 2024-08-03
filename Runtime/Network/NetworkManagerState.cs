@@ -19,7 +19,7 @@ namespace Ivyyy.Network
 
 		//Protected Values
 		protected const int idOffset = 16; //size of guid
-		protected NetworkPackage networkPackage = new NetworkPackage();
+		protected SerializedPackage SerializedPackage = new SerializedPackage();
 		protected bool shutDown = false;
 		
 		//UDP
@@ -63,8 +63,8 @@ namespace Ivyyy.Network
 			Debug.Log("ShutDown done!");
 		}
 
-		//Reconstructs a NetworkObject from the given NetworkPackageValue
-		public static  void SetNetObjectFromValue (NetworkPackageValue netValue)
+		//Reconstructs a NetworkObject from the given SerializedPackageValue
+		public static  void SetNetObjectFromValue (SerializedPackageValue netValue)
 		{
 			byte[] payload = netValue.GetBytes();
 			byte[] tmp = new byte[16];
@@ -87,8 +87,8 @@ namespace Ivyyy.Network
 		}
 
 		//Protected Methods
-		//encapsules the given NetworkObject with the given index into a NetworkPackageValue
-		protected NetworkPackageValue GetNetObjectAsValue (NetworkBehaviour netObject)
+		//encapsules the given NetworkObject with the given index into a SerializedPackageValue
+		protected SerializedPackageValue GetNetObjectAsValue (NetworkBehaviour netObject)
 		{
 			//Add NetworkObject id to payload
 			byte[] objectData = netObject.GetSerializedData();
@@ -98,7 +98,7 @@ namespace Ivyyy.Network
 			Array.Copy (id, 0, payload, 0, idOffset);
 			Array.Copy (objectData, 0, payload, idOffset, objectData.Length);
 
-			return new NetworkPackageValue (payload);
+			return new SerializedPackageValue (payload);
 		}
 
 		protected void CloseSocket (Socket socket)
@@ -135,7 +135,7 @@ namespace Ivyyy.Network
 
 		protected void UDPReceive (int port)
 		{
-			NetworkPackage buffer = new NetworkPackage();
+			SerializedPackage buffer = new SerializedPackage();
 			UdpClient udpClient = new UdpClient();
 			udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, port));
 			IPEndPoint remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
@@ -163,7 +163,7 @@ namespace Ivyyy.Network
 
 						buffer.DeserializeData (byteBuffer);
 
-						//For each Value in networkPackage
+						//For each Value in SerializedPackage
 						for (int i = 0; i < buffer.Count; ++i)
 							SetNetObjectFromValue (buffer.Value(i));
 					}
@@ -219,10 +219,10 @@ namespace Ivyyy.Network
 						byte[] buffer = new byte[packageSize];
 						int bytesReceived = socket.Receive (buffer);
 
-						networkPackage.DeserializeData (buffer);
+						SerializedPackage.DeserializeData (buffer);
 
-						for (int i = 0; i < networkPackage.Count; ++i)
-							NetworkRPC.AddFromSerializedData (networkPackage.Value(i).GetBytes());
+						for (int i = 0; i < SerializedPackage.Count; ++i)
+							NetworkRPC.AddFromSerializedData (SerializedPackage.Value(i).GetBytes());
 					}
 				}
 				catch (Exception e)

@@ -13,11 +13,11 @@ namespace Ivyyy
 
 		public void Clear() { valueList.Clear(); }
 
-		//Returns the count of NetworkPackageValues
+		//Returns the count of SerializedPackageValues
 		public int Count { get { return valueList.Count; } }
 		public bool Available { get { return valueList.Count > 0; } }
 
-		//Sets the value of an existing NetworkPackageValue
+		//Sets the value of an existing SerializedPackageValue
 
 		public void AddValue(SerializedPackageValue val)
 		{
@@ -91,7 +91,7 @@ namespace Ivyyy
 				return valueList[index];
 			else
 			{
-				Debug.LogError("Invalid NetworkPackageValue index!");
+				Debug.LogError("Invalid SerializedPackageValue index!");
 				return default(SerializedPackageValue);
 			}
 		}

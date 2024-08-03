@@ -41,16 +41,16 @@ namespace Ivyyy.Network
 		//Private Methods
 		void SendUPDData()
 		{
-			 networkPackage.Clear();
+			 SerializedPackage.Clear();
 
-			//Create combined NetworkPackage of all NetworkObjects
+			//Create combined SerializedPackage of all NetworkObjects
 			foreach (KeyValuePair<string, NetworkBehaviour> entry in NetworkBehaviour.guidMap)
 			{
 				NetworkBehaviour netObj = entry.Value;
-				networkPackage.AddValue (GetNetObjectAsValue (netObj));
+				SerializedPackage.AddValue (GetNetObjectAsValue (netObj));
 			}
 
-			byte[] data = networkPackage.GetSerializedData();
+			byte[] data = SerializedPackage.GetSerializedData();
 
 			SendUDPData (data);
 		}
@@ -60,22 +60,22 @@ namespace Ivyyy.Network
 			//Send TCP Data
 			if (NetworkRPC.outgoingRpcStack.Count > 0 || NetworkRPC.pendingRpcStack.Count > 0)
 			{
-				networkPackage.Clear();
+				SerializedPackage.Clear();
 
 				//Add outgoing Rpc to stack
 				while (NetworkRPC.outgoingRpcStack.Count > 0)
-					networkPackage.AddValue (new NetworkPackageValue (NetworkRPC.outgoingRpcStack.Dequeue().GetSerializedData()));
+					SerializedPackage.AddValue (new SerializedPackageValue (NetworkRPC.outgoingRpcStack.Dequeue().GetSerializedData()));
 
 				//Execute pendingRpc and add it to package
 				while (NetworkRPC.pendingRpcStack.Count > 0)
 				{
 					NetworkRPC pendingRPC = (NetworkRPC.pendingRpcStack.Dequeue());
 					NetworkRPC.ExecutePendingRPC (pendingRPC);
-					networkPackage.AddValue (new NetworkPackageValue (pendingRPC.GetSerializedData()));
+					SerializedPackage.AddValue (new SerializedPackageValue (pendingRPC.GetSerializedData()));
 				}
 
 				//Sent the data of all NetworkObjects to all clients
-				SendTCPData (networkPackage.GetSerializedData());
+				SendTCPData (SerializedPackage.GetSerializedData());
 			}
 		}
 

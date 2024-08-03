@@ -18,14 +18,14 @@ namespace Ivyyy.Network
 
 		public byte[] GetSerializedData()
 		{
-			NetworkPackage networkPackage = new NetworkPackage();
-			networkPackage.AddValue (new NetworkPackageValue (guid));
-			networkPackage.AddValue (new NetworkPackageValue (methodName));
+			SerializedPackage SerializedPackage = new SerializedPackage();
+			SerializedPackage.AddValue (new SerializedPackageValue (guid));
+			SerializedPackage.AddValue (new SerializedPackageValue (methodName));
 
 			if (data != null)
-				networkPackage.AddValue (new NetworkPackageValue (data));
+				SerializedPackage.AddValue (new SerializedPackageValue (data));
 
-			return networkPackage.GetSerializedData();
+			return SerializedPackage.GetSerializedData();
 		}
 
 		public static void AddOutgoingPendingRPC (string _guid, string _methodName, byte[] data)
@@ -40,19 +40,19 @@ namespace Ivyyy.Network
 
 		public static void AddFromSerializedData (byte[] data)
 		{
-			NetworkPackage networkPackage = new NetworkPackage();
-			networkPackage.DeserializeData (data);
+			SerializedPackage SerializedPackage = new SerializedPackage();
+			SerializedPackage.DeserializeData (data);
 
 			NetworkRPC rpc = new NetworkRPC();
 
-			if (networkPackage.Count >= 2)
+			if (SerializedPackage.Count >= 2)
 			{
-				rpc.guid = networkPackage.Value (0).GetString();
-				rpc.methodName = networkPackage.Value (1).GetString();
+				rpc.guid = SerializedPackage.Value (0).GetString();
+				rpc.methodName = SerializedPackage.Value (1).GetString();
 			}
 
-			if (networkPackage.Count >= 3)
-				rpc.data = networkPackage.Value(2).GetBytes();
+			if (SerializedPackage.Count >= 3)
+				rpc.data = SerializedPackage.Value(2).GetBytes();
 
 			if (rpc.guid != null)
 				pendingRpcStack.Enqueue (rpc);
