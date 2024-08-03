@@ -7,36 +7,69 @@ namespace Ivyyy.GameEvent
 	[CreateAssetMenu (menuName = "GameEvent")]
 	public class GameEvent : ScriptableObject
 	{
+		[System.Serializable]
+		public enum GameEventTyp
+		{
+			Void,
+			Bool,
+			Int,
+			Float,
+			String
+		}
+
+		public GameEventTyp m_eventTyp;
+
+		//Custom Inspector values
+		[HideInInspector] public bool m_bool;
+		[HideInInspector] public int m_int;
+		[HideInInspector] public float m_float;
+		[HideInInspector] public string m_string;
+
 		private List <IGameEventListener> listeners = new List<IGameEventListener>();
 
 		public void Raise()
 		{
-			Debug.Log ("Raise Event: " + name);
-			listeners.ForEach (x=>x.OnEventRaised());
+			if (IsEventTypValid(GameEventTyp.Void))
+			{
+				Debug.Log ("Raise Event: " + name);
+				listeners.ForEach (x=>x.OnEventRaised());
+			}
 		}
 
 		public void Raise (bool val)
 		{
-			Debug.Log("Raise Event: " + name + " " + val);
-			listeners.ForEach(x => x.OnEventRaisedBool(val));
+			if (IsEventTypValid(GameEventTyp.Bool))
+			{
+				Debug.Log("Raise Event: " + name + " " + val);
+				listeners.ForEach(x => x.OnEventRaisedBool(val));
+			}
 		}
 
 		public void Raise(int val)
 		{
-			Debug.Log("Raise Event: " + name + " " + val);
-			listeners.ForEach(x => x.OnEventRaisedInt(val));
+			if (IsEventTypValid(GameEventTyp.Int))
+			{
+				Debug.Log("Raise Event: " + name + " " + val);
+				listeners.ForEach(x => x.OnEventRaisedInt(val));
+			}
 		}
 
 		public void Raise(float val)
 		{
-			Debug.Log("Raise Event: " + name + " " + val);
-			listeners.ForEach(x => x.OnEventRaisedFloat(val));
+			if (IsEventTypValid(GameEventTyp.Float))
+			{
+				Debug.Log("Raise Event: " + name + " " + val);
+				listeners.ForEach(x => x.OnEventRaisedFloat(val));
+			}
 		}
 		
 		public void Raise(string val)
 		{
-			Debug.Log("Raise Event: " + name + " " + val);
-			listeners.ForEach(x => x.OnEventRaisedString(val));
+			if (IsEventTypValid(GameEventTyp.String))
+			{
+				Debug.Log("Raise Event: " + name + " " + val);
+				listeners.ForEach(x => x.OnEventRaisedString(val));
+			}
 		}
 
 		public void RegisterListener(IGameEventListener listener)
@@ -47,6 +80,17 @@ namespace Ivyyy.GameEvent
 		public void UnregisterListener(IGameEventListener listener)
 		{
 			listeners.Remove(listener); 
+		}
+
+		private bool IsEventTypValid (GameEventTyp eventTyp)
+		{
+			if (m_eventTyp == eventTyp)
+				return true;
+			else
+			{
+				Debug.LogError ("Invalid GameEvent parameter! GameEventTyp is: " + m_eventTyp.ToString());
+				return false;
+			}
 		}
 	}
 }

@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -14,55 +16,64 @@ namespace Ivyyy.GameEvent
 		public void OnEventRaisedString (string val);
 	}
 
+	[System.Serializable]
+	public class UnityEventBool : UnityEvent<bool> {}
+	[System.Serializable]
+	public class UnityEventInt : UnityEvent<int> {}
+	[System.Serializable]
+	public class UnityEventFloat : UnityEvent<float> {}
+	[System.Serializable]
+	public class UnityEventString : UnityEvent<string> {}
+
 	public class GameEventListener : MonoBehaviour, IGameEventListener
 	{
-		public GameEvent gameEvent;
-		public UnityEvent response;
-		public UnityEvent <bool> responseBool;
-		public UnityEvent <int> responseInt;
-		public UnityEvent <float> responseFloat;
-		public UnityEvent <string> responseString;
+		public GameEvent m_gameEvent;
+		[SerializeField] UnityEvent m_response;
+		[SerializeField] UnityEventBool m_responseBool;
+		[SerializeField] UnityEventInt m_responseInt;
+		[SerializeField] UnityEventFloat m_responseFloat;
+		[SerializeField] UnityEventString m_responseString;
 
 		private void OnEnable()
 		{
-			if (gameEvent != null)
-				gameEvent.RegisterListener(this);
+			if (m_gameEvent != null)
+				m_gameEvent.RegisterListener(this);
 		}
 
 		private void OnDisable()
 		{
-			if (gameEvent != null)
-				gameEvent.UnregisterListener(this);
+			if (m_gameEvent != null)
+				m_gameEvent.UnregisterListener(this);
 		}
 
 		public void OnEventRaised()
 		{
-			if (response != null)
-				response.Invoke();
+			if (m_response != null)
+				m_response.Invoke();
 		}
 
 		public void OnEventRaisedBool (bool val)
 		{
-			if (responseBool != null)
-				responseBool.Invoke(val);
+			if (m_responseBool != null)
+				m_responseBool.Invoke(val);
 		}
 
 		public void OnEventRaisedInt(int val)
 		{
-			if (responseInt != null)
-				responseInt.Invoke(val);
+			if (m_responseInt != null)
+				m_responseInt.Invoke(val);
 		}
 
 		public void OnEventRaisedFloat(float val)
 		{
-			if (responseFloat != null)
-				responseFloat.Invoke(val);
+			if (m_responseFloat != null)
+				m_responseFloat.Invoke(val);
 		}
 		
 		public void OnEventRaisedString(string val)
 		{
-			if (responseString != null)
-				responseString.Invoke(val);
+			if (m_responseString != null)
+				m_responseString.Invoke(val);
 		}
 	}
 }
