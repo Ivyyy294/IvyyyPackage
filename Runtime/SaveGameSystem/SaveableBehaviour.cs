@@ -33,6 +33,11 @@ namespace Ivyyy
 
 		public void ResetGUID() { m_guid = ""; }
 		public void GenerateGuid() { m_guid = System.Guid.NewGuid().ToString(); }
+		public void GenerateGuidSeeded()
+		{ 
+			int seed = Random.Range (0, 32767);
+			m_guid = seed.ToString();
+		}
 
 		//public abstract methods
 		public abstract void SetSerializedPackageData();
