@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Ivyyy.Core
+namespace Ivyyy.Legacy
 {
 	public class FollowPlayer : MonoBehaviour
 	{

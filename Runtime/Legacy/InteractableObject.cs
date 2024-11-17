@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Ivyyy.Interfaces
+namespace Ivyyy.Legacy
 {
 	public interface InteractableObject
 	{

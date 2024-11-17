@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-namespace Ivyyy.Core
+namespace Ivyyy.Legacy
 {
 	public class PlayerMovement3D : MonoBehaviour
 	{

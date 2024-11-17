@@ -7,7 +7,7 @@ using UnityEngine;
 	using UnityEditor.SceneManagement;
  #endif
 
-namespace Ivyyy.Core
+namespace Ivyyy.Legacy
 {
 	[ExecuteInEditMode]
 	public class GUID : MonoBehaviour

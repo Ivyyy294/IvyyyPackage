@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Ivyyy.Core
+namespace Ivyyy.Legacy
 {
 	[RequireComponent (typeof (Rigidbody))]
 	public class TriggerZone : MonoBehaviour

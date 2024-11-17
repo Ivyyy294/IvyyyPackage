@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Ivyyy.Core
+namespace Ivyyy.Legacy
 {
 	[RequireComponent (typeof (BoxCollider2D))]
 	public class Teleporter2D : MonoBehaviour
