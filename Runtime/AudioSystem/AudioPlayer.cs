@@ -6,62 +6,62 @@ namespace Ivyyy
 {
 	public class AudioPlayer : MonoBehaviour
 	{
-		[SerializeField] AudioAsset audioAsset;
-		[SerializeField] bool playOnAwake = false;
-		private AudioSource audioSource;
-		private float baseVolume;
-		bool fadeOut = false;
-		bool fadeIn = false;
+		[SerializeField] AudioAsset m_audioAsset;
+		[SerializeField] bool m_playOnAwake = false;
+		private AudioSource m_audioSource;
+		private float m_baseVolume;
+		bool m_fadeOut = false;
+		bool m_fadeIn = false;
 
 		//Public Functions
 		public void Play()
 		{
-			if (audioSource && !audioSource.isPlaying)
+			if (m_audioSource && !m_audioSource.isPlaying)
 			{
-				audioAsset?.Play(audioSource);
-				baseVolume = audioSource.volume;
-				fadeOut = false;
+				m_audioAsset?.Play(m_audioSource);
+				m_baseVolume = m_audioSource.volume;
+				m_fadeOut = false;
 			}
 		}
 
 		public void Play(AudioAsset newAudioAsset)
 		{
-			audioAsset = newAudioAsset;
+			m_audioAsset = newAudioAsset;
 
-			if (audioSource.isPlaying)
-				audioSource.Stop();
+			if (m_audioSource.isPlaying)
+				m_audioSource.Stop();
 
 			Play();
 		}
 
 		public void Stop()
 		{
-			audioSource.Stop();
+			m_audioSource.Stop();
 		}
 
 		public void FadeOut(float time)
 		{
-			if (!fadeOut && enabled)
+			if (!m_fadeOut && enabled)
 			{
-				fadeOut = true;
+				m_fadeOut = true;
 				StartCoroutine(FadeOutTask(time));
 			}
 		}
 
 		public void FadeIn(float time)
 		{
-			if (!fadeIn && enabled)
+			if (!m_fadeIn && enabled)
 			{
-				fadeIn = true;
-				StartCoroutine(FadeInTask(audioAsset, time));
+				m_fadeIn = true;
+				StartCoroutine(FadeInTask(m_audioAsset, time));
 			}
 		}
 
 		public void FadeIn(AudioAsset newAudioAsset, float time)
 		{
-			if (!fadeIn && enabled)
+			if (!m_fadeIn && enabled)
 			{
-				audioAsset = newAudioAsset;
+				m_audioAsset = newAudioAsset;
 				FadeIn(time);
 			}
 		}
@@ -71,54 +71,54 @@ namespace Ivyyy
 			StartCoroutine(TransitionTask(newAudioAsset, transitionTime));
 		}
 
-		public bool IsPlaying() { return audioSource.isPlaying; }
+		public bool IsPlaying() { return m_audioSource.isPlaying; }
 
-		public AudioAsset AudioAsset() { return audioAsset; }
+		public AudioAsset AudioAsset() { return m_audioAsset; }
 
 		//Private Functions
 		private void Awake()
 		{
-			audioSource = gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
-			baseVolume = audioSource.volume;
-			audioSource.playOnAwake = false;
-			audioSource.Stop();
+			m_audioSource = gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
+			m_baseVolume = m_audioSource.volume;
+			m_audioSource.playOnAwake = false;
+			m_audioSource.Stop();
 
-			if (playOnAwake)
+			if (m_playOnAwake)
 				Play();
 		}
 
 		private void Update()
 		{
-			if (!fadeOut && !fadeIn && audioAsset != null && audioSource.isPlaying)
-				audioSource.volume = baseVolume * audioAsset.GetVolumeFactor();
+			if (!m_fadeOut && !m_fadeIn && m_audioAsset != null && m_audioSource.isPlaying)
+				m_audioSource.volume = m_baseVolume * m_audioAsset.GetVolumeFactor();
 		}
 
 		IEnumerator FadeInTask(AudioAsset newAudioAsset, float time)
 		{
 			Play(newAudioAsset);
-			audioSource.volume = 0f;
+			m_audioSource.volume = 0f;
 
-			while (audioSource.volume < baseVolume)
+			while (m_audioSource.volume < m_baseVolume)
 			{
-				float volumeOffset = baseVolume * Time.unscaledDeltaTime / time;
-				audioSource.volume += volumeOffset;
+				float volumeOffset = m_baseVolume * Time.unscaledDeltaTime / time;
+				m_audioSource.volume += volumeOffset;
 				yield return null;
 			};
 
-			fadeIn = false;
+			m_fadeIn = false;
 		}
 
 		IEnumerator FadeOutTask(float time)
 		{
-			while (audioSource.volume > 0f)
+			while (m_audioSource.volume > 0f)
 			{
-				float volumeOffset = baseVolume * Time.unscaledDeltaTime / time;
-				audioSource.volume -= volumeOffset;
+				float volumeOffset = m_baseVolume * Time.unscaledDeltaTime / time;
+				m_audioSource.volume -= volumeOffset;
 				yield return null;
 			};
 
-			audioSource.Stop();
-			fadeOut = false;
+			m_audioSource.Stop();
+			m_fadeOut = false;
 		}
 
 		IEnumerator TransitionTask(AudioAsset newAmbient, float transitionTime)
@@ -128,7 +128,7 @@ namespace Ivyyy
 			if (IsPlaying())
 				FadeOut(fade);
 
-			while (fadeOut)
+			while (m_fadeOut)
 				yield return null;
 
 			FadeIn(newAmbient, fade);
@@ -136,12 +136,12 @@ namespace Ivyyy
 
 		private void OnDrawGizmosSelected()
 		{
-			if (audioAsset != null && audioAsset.spatial)
+			if (m_audioAsset != null && m_audioAsset.m_spatial)
 			{
 				Gizmos.color = Color.red;
-				Gizmos.DrawWireSphere(transform.position, audioAsset.minDistance);
+				Gizmos.DrawWireSphere(transform.position, m_audioAsset.m_minDistance);
 				Gizmos.color = Color.yellow;
-				Gizmos.DrawWireSphere(transform.position, audioAsset.maxDistance);
+				Gizmos.DrawWireSphere(transform.position, m_audioAsset.m_maxDistance);
 			}
 		}
 	}

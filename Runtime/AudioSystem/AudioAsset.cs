@@ -12,8 +12,8 @@ namespace Ivyyy
 		[System.Serializable]
 		public struct ClipData
 		{
-			public AudioClip clip;
-			public string subtitle;
+			public AudioClip m_clip;
+			public string m_subtitle;
 		}
 
 		public enum AudioTyp
@@ -33,43 +33,43 @@ namespace Ivyyy
 		}
 
 		public ClipData[] clipData;
-		[SerializeField] AudioMixerGroup mixerGroup;
+		[SerializeField] AudioMixerGroup m_mixerGroup;
 		[Space]
-		[SerializeField] PlayStyle playStyle = PlayStyle.RANDOM;
+		[SerializeField] PlayStyle m_playStyle = PlayStyle.RANDOM;
 		[Space]
-		public AudioTyp audioTyp = AudioTyp.SFX;
-		[HideInInspector] public bool loop = false;
-		[HideInInspector] public Vector2 volume = new Vector2(0.5f, 0.5f);
-		[HideInInspector] public Vector2 pitch = new Vector2(1f, 1f);
-		[HideInInspector] public bool spatial = false;
-		[HideInInspector] public float minDistance = 0.5f;
-		[HideInInspector] public float maxDistance = 500f;
+		public AudioTyp m_audioTyp = AudioTyp.SFX;
+		[HideInInspector] public bool m_loop = false;
+		[HideInInspector] public Vector2 m_volume = new Vector2(0.5f, 0.5f);
+		[HideInInspector] public Vector2 m_pitch = new Vector2(1f, 1f);
+		[HideInInspector] public bool m_spatial = false;
+		[HideInInspector] public float m_minDistance = 0.5f;
+		[HideInInspector] public float m_maxDistance = 500f;
 
-		private Stack<ClipData> clipBuffer = new Stack<ClipData>();
-		private PlayStyle oldPlayStyle;
+		private Stack<ClipData> m_clipBuffer = new Stack<ClipData>();
+		private PlayStyle m_oldPlayStyle;
 
 #if UNITY_EDITOR
-		private AudioSource preview;
+		private AudioSource m_preview;
 
 		private void OnEnable()
 		{
-			preview = CreateAudioSource();
+			m_preview = CreateAudioSource();
 		}
 
 		private void OnDisable()
 		{
-			DestroyImmediate(preview);
+			DestroyImmediate(m_preview);
 		}
 
 		public void PlayPreview()
 		{
 			//Play preview without spatial
-			Play(preview).spatialBlend = 0f; ;
+			Play(m_preview).spatialBlend = 0f; ;
 		}
 
 		public void StopPreview()
 		{
-			preview.Stop();
+			m_preview.Stop();
 		}
 #endif
 
@@ -84,31 +84,31 @@ namespace Ivyyy
 
 			if (clipData.Length > 0)
 			{
-				if (clipBuffer.Count == 0 || oldPlayStyle != playStyle)
+				if (m_clipBuffer.Count == 0 || m_oldPlayStyle != m_playStyle)
 					ShuffleAudioClips();
 
-				ClipData clip = clipBuffer.Pop();
+				ClipData clip = m_clipBuffer.Pop();
 
-				if (clip.clip != null)
+				if (clip.m_clip != null)
 				{
 					if (source == null)
 						source = CreateAudioSource();
 
-					source.clip = clip.clip;
-					source.outputAudioMixerGroup = mixerGroup;
+					source.clip = clip.m_clip;
+					source.outputAudioMixerGroup = m_mixerGroup;
 					//Only Allow loop with externen AudioSource
-					source.loop = audioSource != null && loop;
-					source.volume = Random.Range(volume.x, volume.y) * GetVolumeFactor();
-					source.pitch = Random.Range(pitch.x, pitch.y);
-					source.spatialBlend = spatial ? 1f : 0f;
-					source.minDistance = minDistance;
-					source.maxDistance = maxDistance;
+					source.loop = audioSource != null && m_loop;
+					source.volume = Random.Range(m_volume.x, m_volume.y) * GetVolumeFactor();
+					source.pitch = Random.Range(m_pitch.x, m_pitch.y);
+					source.spatialBlend = m_spatial ? 1f : 0f;
+					source.minDistance = m_minDistance;
+					source.maxDistance = m_maxDistance;
 					source.rolloffMode = AudioRolloffMode.Linear;
 					source.Play();
 
 #if UNITY_EDITOR
 					//Prevents stable source from being deleted
-					if (audioSource == preview)
+					if (audioSource == m_preview)
 						return source;
 #endif
 					//Delete tmp audio source after playing
@@ -142,10 +142,16 @@ namespace Ivyyy
 		{
 			float factor = GameSettings.Me().audioSettings.m_masterVolume;
 
-			if (audioTyp == AudioAsset.AudioTyp.SFX)
+			if (m_audioTyp == AudioAsset.AudioTyp.SFX)
 				factor *= GameSettings.Me().audioSettings.sfxVolume;
-			else if (audioTyp == AudioAsset.AudioTyp.MUSIC)
+			else if (m_audioTyp == AudioAsset.AudioTyp.MUSIC)
 				factor *= GameSettings.Me().audioSettings.musicVolume;
+			else if (m_audioTyp == AudioAsset.AudioTyp.AMBIENT)
+				factor *= GameSettings.Me().audioSettings.ambientVolume;
+			else if (m_audioTyp == AudioAsset.AudioTyp.VOICE_LINE)
+				factor *= GameSettings.Me().audioSettings.voiceLine;
+			else if (m_audioTyp == AudioAsset.AudioTyp.UI)
+				factor *= GameSettings.Me().audioSettings.uiVolume;
 
 			return factor;
 		}
@@ -154,30 +160,30 @@ namespace Ivyyy
 
 		public void ShuffleAudioClips()
 		{
-			clipBuffer.Clear();
+			m_clipBuffer.Clear();
 
-			if (playStyle == PlayStyle.RANDOM)
+			if (m_playStyle == PlayStyle.RANDOM)
 			{
-				while (clipBuffer.Count < clipData.Length)
+				while (m_clipBuffer.Count < clipData.Length)
 				{
 					int index = clipData.Length > 1 ? Random.Range(0, clipData.Length) : 0;
 
-					if (!clipBuffer.Contains(clipData[index]))
-						clipBuffer.Push(clipData[index]);
+					if (!m_clipBuffer.Contains(clipData[index]))
+						m_clipBuffer.Push(clipData[index]);
 				}
 			}
-			else if (playStyle == PlayStyle.REVERSE)
+			else if (m_playStyle == PlayStyle.REVERSE)
 			{
 				foreach (ClipData i in clipData)
-					clipBuffer.Push(i);
+					m_clipBuffer.Push(i);
 			}
 			else
 			{
 				for (int i = clipData.Length - 1; i >= 0; --i)
-					clipBuffer.Push(clipData[i]);
+					m_clipBuffer.Push(clipData[i]);
 			}
 
-			oldPlayStyle = playStyle;
+			m_oldPlayStyle = m_playStyle;
 		}
 		//Private FUnctions
 

@@ -22,8 +22,8 @@ namespace Ivyyy
 
 			AudioAsset audioAsset = (AudioAsset)target;
 
-			if (audioAsset.audioTyp == AudioAsset.AudioTyp.SFX
-				|| audioAsset.audioTyp == AudioAsset.AudioTyp.UI)
+			if (audioAsset.m_audioTyp == AudioAsset.AudioTyp.SFX
+				|| audioAsset.m_audioTyp == AudioAsset.AudioTyp.UI)
 				SFXEditor(audioAsset);
 			else
 				MusicEditor(audioAsset);
@@ -53,13 +53,13 @@ namespace Ivyyy
 
 			//Volume
 			EditorGUILayout.Space();
-			string labelVolume = ("Volume \t[" + audioAsset.volume.x.ToString("0.00") + " - " + audioAsset.volume.y.ToString("0.00") + "]");
-			EditorGUILayout.MinMaxSlider(labelVolume, ref audioAsset.volume.x, ref audioAsset.volume.y, 0f, 1f);
+			string labelVolume = ("Volume \t[" + audioAsset.m_volume.x.ToString("0.00") + " - " + audioAsset.m_volume.y.ToString("0.00") + "]");
+			EditorGUILayout.MinMaxSlider(labelVolume, ref audioAsset.m_volume.x, ref audioAsset.m_volume.y, 0f, 1f);
 
 			//Pitch
 			EditorGUILayout.Space();
-			string labelPitch = ("Pitch \t [" + audioAsset.pitch.x.ToString("0.00") + " - " + audioAsset.pitch.y.ToString("0.00") + "]");
-			EditorGUILayout.MinMaxSlider(labelPitch, ref audioAsset.pitch.x, ref audioAsset.pitch.y, 0f, 2f);
+			string labelPitch = ("Pitch \t [" + audioAsset.m_pitch.x.ToString("0.00") + " - " + audioAsset.m_pitch.y.ToString("0.00") + "]");
+			EditorGUILayout.MinMaxSlider(labelPitch, ref audioAsset.m_pitch.x, ref audioAsset.m_pitch.y, 0f, 2f);
 			EditorGUILayout.Space();
 		}
 
@@ -72,21 +72,21 @@ namespace Ivyyy
 
 			//Volume
 			EditorGUILayout.Space();
-			string labelVolume = ("Volume \t[" + audioAsset.volume.x.ToString("0.00") + " - " + audioAsset.volume.y.ToString("0.00") + "]");
+			string labelVolume = ("Volume \t[" + audioAsset.m_volume.x.ToString("0.00") + " - " + audioAsset.m_volume.y.ToString("0.00") + "]");
 
-			float volume = audioAsset.volume.x;
+			float volume = audioAsset.m_volume.x;
 			volume = EditorGUILayout.Slider(labelVolume, volume, 0f, 1f);
-			audioAsset.volume.x = volume;
-			audioAsset.volume.y = volume;
+			audioAsset.m_volume.x = volume;
+			audioAsset.m_volume.y = volume;
 
 			//Pitch
 			EditorGUILayout.Space();
-			string labelPitch = ("Pitch \t [" + audioAsset.pitch.x.ToString("0.00") + " - " + audioAsset.pitch.y.ToString("0.00") + "]");
+			string labelPitch = ("Pitch \t [" + audioAsset.m_pitch.x.ToString("0.00") + " - " + audioAsset.m_pitch.y.ToString("0.00") + "]");
 
-			float pitch = audioAsset.pitch.x;
+			float pitch = audioAsset.m_pitch.x;
 			pitch = EditorGUILayout.Slider(labelPitch, pitch, 0f, 2f);
-			audioAsset.pitch.x = pitch;
-			audioAsset.pitch.y = pitch;
+			audioAsset.m_pitch.x = pitch;
+			audioAsset.m_pitch.y = pitch;
 		}
 
 		void SpatialEditor(AudioAsset audioAsset)
@@ -96,16 +96,16 @@ namespace Ivyyy
 			EditorGUILayout.PropertyField(yourBoolVariable, new GUIContent("spatial"));
 			serializedObject.ApplyModifiedProperties();
 
-			if (audioAsset.spatial)
+			if (audioAsset.m_spatial)
 			{
 				SerializedProperty minDistance = serializedObject.FindProperty("minDistance");
 				SerializedProperty maxDistance = serializedObject.FindProperty("maxDistance");
 
-				float minDis = EditorGUILayout.Slider("minDistance", audioAsset.minDistance, 0f, 500f);
-				float maxDis = EditorGUILayout.Slider("maxDistance", audioAsset.maxDistance, 0f, 500f);
+				float minDis = EditorGUILayout.Slider("minDistance", audioAsset.m_minDistance, 0f, 500f);
+				float maxDis = EditorGUILayout.Slider("maxDistance", audioAsset.m_maxDistance, 0f, 500f);
 
-				audioAsset.minDistance = minDis;
-				audioAsset.maxDistance = maxDis;
+				audioAsset.m_minDistance = minDis;
+				audioAsset.m_maxDistance = maxDis;
 			}
 
 			EditorGUILayout.Space();
