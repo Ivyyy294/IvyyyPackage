@@ -25,14 +25,14 @@ namespace Ivyyy.GameEvent
 		[HideInInspector] public float m_float;
 		[HideInInspector] public string m_string;
 
-		private List <IGameEventListener> listeners = new List<IGameEventListener>();
+		private List <IGameEventListener> m_listeners = new List<IGameEventListener>();
 
 		public void Raise()
 		{
 			if (IsEventTypValid(GameEventTyp.Void))
 			{
 				Debug.Log ("Raise Event: " + name);
-				listeners.ForEach (x=>x.OnEventRaised());
+				m_listeners.ForEach (x=>x.OnEventRaised());
 			}
 		}
 
@@ -41,7 +41,7 @@ namespace Ivyyy.GameEvent
 			if (IsEventTypValid(GameEventTyp.Bool))
 			{
 				Debug.Log("Raise Event: " + name + " " + val);
-				listeners.ForEach(x => x.OnEventRaisedBool(val));
+				m_listeners.ForEach(x => x.OnEventRaisedBool(val));
 			}
 		}
 
@@ -50,7 +50,7 @@ namespace Ivyyy.GameEvent
 			if (IsEventTypValid(GameEventTyp.Int))
 			{
 				Debug.Log("Raise Event: " + name + " " + val);
-				listeners.ForEach(x => x.OnEventRaisedInt(val));
+				m_listeners.ForEach(x => x.OnEventRaisedInt(val));
 			}
 		}
 
@@ -59,7 +59,7 @@ namespace Ivyyy.GameEvent
 			if (IsEventTypValid(GameEventTyp.Float))
 			{
 				Debug.Log("Raise Event: " + name + " " + val);
-				listeners.ForEach(x => x.OnEventRaisedFloat(val));
+				m_listeners.ForEach(x => x.OnEventRaisedFloat(val));
 			}
 		}
 		
@@ -68,18 +68,18 @@ namespace Ivyyy.GameEvent
 			if (IsEventTypValid(GameEventTyp.String))
 			{
 				Debug.Log("Raise Event: " + name + " " + val);
-				listeners.ForEach(x => x.OnEventRaisedString(val));
+				m_listeners.ForEach(x => x.OnEventRaisedString(val));
 			}
 		}
 
 		public void RegisterListener(IGameEventListener listener)
 		{
-			listeners.Add(listener); 
+			m_listeners.Add(listener); 
 		}
 
 		public void UnregisterListener(IGameEventListener listener)
 		{
-			listeners.Remove(listener); 
+			m_listeners.Remove(listener); 
 		}
 
 		private bool IsEventTypValid (GameEventTyp eventTyp)

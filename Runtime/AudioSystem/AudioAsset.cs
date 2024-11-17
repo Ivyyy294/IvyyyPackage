@@ -143,15 +143,15 @@ namespace Ivyyy
 			float factor = GameSettings.Me().audioSettings.m_masterVolume;
 
 			if (m_audioTyp == AudioAsset.AudioTyp.SFX)
-				factor *= GameSettings.Me().audioSettings.sfxVolume;
+				factor *= GameSettings.Me().audioSettings.m_sfxVolume;
 			else if (m_audioTyp == AudioAsset.AudioTyp.MUSIC)
-				factor *= GameSettings.Me().audioSettings.musicVolume;
+				factor *= GameSettings.Me().audioSettings.m_musicVolume;
 			else if (m_audioTyp == AudioAsset.AudioTyp.AMBIENT)
-				factor *= GameSettings.Me().audioSettings.ambientVolume;
+				factor *= GameSettings.Me().audioSettings.m_ambientVolume;
 			else if (m_audioTyp == AudioAsset.AudioTyp.VOICE_LINE)
-				factor *= GameSettings.Me().audioSettings.voiceLine;
+				factor *= GameSettings.Me().audioSettings.m_voiceLine;
 			else if (m_audioTyp == AudioAsset.AudioTyp.UI)
-				factor *= GameSettings.Me().audioSettings.uiVolume;
+				factor *= GameSettings.Me().audioSettings.m_uiVolume;
 
 			return factor;
 		}

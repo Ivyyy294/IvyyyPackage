@@ -7,22 +7,22 @@ namespace Ivyyy
 	public class AudioSettings : ISettingContainer
 	{
 		public float m_masterVolume;
-		public float sfxVolume = 1f;
-		public float musicVolume = 1f;
-		public float ambientVolume = 1f;
-		public float uiVolume = 1f;
-		public float voiceLine = 1f;
-		public bool subtitle = true;
+		public float m_sfxVolume = 1f;
+		public float m_musicVolume = 1f;
+		public float m_ambientVolume = 1f;
+		public float m_uiVolume = 1f;
+		public float m_voiceLine = 1f;
+		public bool m_subtitle = true;
 
 		public void SaveSettings()
 		{
 			PlayerPrefs.SetFloat("IvyyyMasterVolume", m_masterVolume);
-			PlayerPrefs.SetFloat("IvyyySfxVolume", sfxVolume);
-			PlayerPrefs.SetFloat("IvyyyMusicVolume", musicVolume);
-			PlayerPrefs.SetFloat("IvyyyAmbientVolume", ambientVolume);
-			PlayerPrefs.SetFloat("IvyyyUiVolume", uiVolume);
-			PlayerPrefs.SetFloat("IvyyyVoiceLine", voiceLine);
-			PlayerPrefs.SetFloat("IvyyySubtitle", subtitle ? 1f : 0f);
+			PlayerPrefs.SetFloat("IvyyySfxVolume", m_sfxVolume);
+			PlayerPrefs.SetFloat("IvyyyMusicVolume", m_musicVolume);
+			PlayerPrefs.SetFloat("IvyyyAmbientVolume", m_ambientVolume);
+			PlayerPrefs.SetFloat("IvyyyUiVolume", m_uiVolume);
+			PlayerPrefs.SetFloat("IvyyyVoiceLine", m_voiceLine);
+			PlayerPrefs.SetFloat("IvyyySubtitle", m_subtitle ? 1f : 0f);
 			PlayerPrefs.Save();
 		}
 
@@ -35,12 +35,12 @@ namespace Ivyyy
 		public void LoadSettings()
 		{
 			m_masterVolume = LoadValue("IvyyyMasterVolume");
-			sfxVolume = LoadValue("IvyyySfxVolume");
-			musicVolume = LoadValue("IvyyyMusicVolume");
-			ambientVolume = LoadValue("IvyyyAmbientVolume");
-			uiVolume = LoadValue("IvyyyUiVolume");
-			voiceLine = LoadValue("IvyyyVoiceLine");
-			subtitle = LoadValue("IvyyySubtitle") > 0f ? true : false;
+			m_sfxVolume = LoadValue("IvyyySfxVolume");
+			m_musicVolume = LoadValue("IvyyyMusicVolume");
+			m_ambientVolume = LoadValue("IvyyyAmbientVolume");
+			m_uiVolume = LoadValue("IvyyyUiVolume");
+			m_voiceLine = LoadValue("IvyyyVoiceLine");
+			m_subtitle = LoadValue("IvyyySubtitle") > 0f ? true : false;
 		}
 
 		float LoadValue(string key)
