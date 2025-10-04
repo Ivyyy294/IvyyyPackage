@@ -7,7 +7,7 @@ namespace Ivyyy
 {
 
     [System.Serializable]
-    [CreateAssetMenu (menuName = "BlackBoardList")]
+    [CreateAssetMenu (menuName = "Ivyyy/BlackBoard")]
     public class BlackBoardList : ScriptableObject
     {
 	    public static List <BlackBoardList> instances = new List <BlackBoardList>();

@@ -6,7 +6,7 @@ namespace Ivyyy
 {
 
     [System.Serializable]
-    [CreateAssetMenu (menuName = "Dialog")]
+    [CreateAssetMenu (menuName = "Ivyyy/Dialog")]
     public class DialogContainer : ScriptableObject
     {
 	    public List <NodeLinkData> nodeLinks = new List<NodeLinkData>();
