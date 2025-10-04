@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Ivyyy.GameEvent
+namespace Ivyyy
 {
-	[CreateAssetMenu (menuName = "GameEvent")]
+	[CreateAssetMenu (menuName = "Ivyyy/GameEvent")]
 	public class GameEvent : ScriptableObject
 	{
 		[System.Serializable]
@@ -14,7 +14,8 @@ namespace Ivyyy.GameEvent
 			Bool,
 			Int,
 			Float,
-			String
+			String,
+            GameObject
 		}
 
 		public GameEventTyp m_eventTyp;
@@ -24,6 +25,7 @@ namespace Ivyyy.GameEvent
 		[HideInInspector] public int m_int;
 		[HideInInspector] public float m_float;
 		[HideInInspector] public string m_string;
+		[HideInInspector] public GameObject m_gameObject;
 
 		private List <IGameEventListener> m_listeners = new List<IGameEventListener>();
 
@@ -72,7 +74,16 @@ namespace Ivyyy.GameEvent
 			}
 		}
 
-		public void RegisterListener(IGameEventListener listener)
+        public void Raise(GameObject val)
+        {
+            if (IsEventTypValid(GameEventTyp.GameObject))
+            {
+                Debug.Log("Raise Event: " + name + " " + val);
+                m_listeners.ForEach(x => x.OnEventRaisedGameObject(val));
+            }
+        }
+
+        public void RegisterListener(IGameEventListener listener)
 		{
 			m_listeners.Add(listener); 
 		}

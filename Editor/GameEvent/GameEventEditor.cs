@@ -5,13 +5,15 @@ using UnityEngine;
 
 #if UNITY_EDITOR
 
-namespace Ivyyy.GameEvent
+namespace Ivyyy
 {
 	[CustomEditor(typeof(GameEvent))]
 	public class GameEventEditor : Editor
 	{
 		public override void OnInspectorGUI()
 		{
+            EditorGUI.BeginChangeCheck();
+
 			CreateEnumSelection();
 
 			GUILayout.Space(16);
@@ -31,24 +33,31 @@ namespace Ivyyy.GameEvent
 				case GameEvent.GameEventTyp.String:
 					CreateRaiseButton <string>();
 					break;
-				default:
+                case GameEvent.GameEventTyp.GameObject:
+                    CreateRaiseButton<GameObject>();
+                    break;
+                default:
 					CreateRaiseButton ();
 					break;
 			}
 
-			serializedObject.ApplyModifiedProperties();
-		}
+            if (EditorGUI.EndChangeCheck())
+            {
+                serializedObject.ApplyModifiedProperties();
+                EditorUtility.SetDirty(target);
+            }
+        }
 
 		private void CreateEnumSelection()
 		{
-			EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.BeginHorizontal();
 
 			GUILayout.Label ("GameEventTyp", GUILayout.Width(100));
 
 			GameEvent gameEvent = (GameEvent)target;
 			gameEvent.m_eventTyp = (GameEvent.GameEventTyp)EditorGUILayout.EnumPopup(gameEvent.m_eventTyp, GUILayout.Width(100));
 
-			EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndHorizontal();
 		}
 
 		private void CreateRaiseButton<T> ()
@@ -68,9 +77,11 @@ namespace Ivyyy.GameEvent
 				gameEvent.m_float = EditorGUILayout.FloatField(gameEvent.m_float);
 			else if (typeof(T) == typeof(string))
 				gameEvent.m_string = EditorGUILayout.TextField(gameEvent.m_string);
+            else if (typeof(T) == typeof(GameObject))
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("m_gameObject"));
 
-			// Add a button next to the input field
-			if (pressed)
+            // Add a button next to the input field
+            if (pressed)
 			{
 				if (typeof(T) == typeof(void))
 					((GameEvent)target).Raise();
@@ -82,7 +93,9 @@ namespace Ivyyy.GameEvent
 					((GameEvent)target).Raise(gameEvent.m_float);
 				else if (typeof(T) == typeof(string))
 					((GameEvent)target).Raise(gameEvent.m_string);
-			}
+                else if (typeof(T) == typeof(GameObject))
+                    ((GameEvent)target).Raise(gameEvent.m_gameObject);
+            }
 
 			// End the horizontal group
 			EditorGUILayout.EndHorizontal();

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Ivyyy.GameEvent
+namespace Ivyyy
 {
 	[CustomEditor(typeof(GameEventListener))]
 	public class GameEventListenerEditor : Editor

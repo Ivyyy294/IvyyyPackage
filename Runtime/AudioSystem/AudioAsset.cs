@@ -6,7 +6,7 @@ using UnityEngine.Audio;
 
 namespace Ivyyy
 {
-	[CreateAssetMenu(fileName = "NewAudioAsset", menuName = "My Assets/AudioAsset")]
+	[CreateAssetMenu(fileName = "NewAudioAsset", menuName = "Ivyyy/AudioAsset")]
 	public class AudioAsset : ScriptableObject
 	{
 		[System.Serializable]

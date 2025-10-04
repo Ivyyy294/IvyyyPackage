@@ -5,7 +5,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Ivyyy.GameEvent
+namespace Ivyyy
 {
 	public interface IGameEventListener
 	{
@@ -14,6 +14,7 @@ namespace Ivyyy.GameEvent
 		public void OnEventRaisedInt (int val);
 		public void OnEventRaisedFloat (float val);
 		public void OnEventRaisedString (string val);
+		public void OnEventRaisedGameObject(GameObject val);
 	}
 
 	[System.Serializable]
@@ -24,6 +25,7 @@ namespace Ivyyy.GameEvent
 	public class UnityEventFloat : UnityEvent<float> {}
 	[System.Serializable]
 	public class UnityEventString : UnityEvent<string> {}
+	public class UnityEventGameObject : UnityEvent<GameObject> {}
 
 	public class GameEventListener : MonoBehaviour, IGameEventListener
 	{
@@ -33,6 +35,7 @@ namespace Ivyyy.GameEvent
 		[SerializeField] UnityEventInt m_responseInt;
 		[SerializeField] UnityEventFloat m_responseFloat;
 		[SerializeField] UnityEventString m_responseString;
+		[SerializeField] UnityEventGameObject m_responseGameObject;
 
 		private void OnEnable()
 		{
@@ -75,5 +78,11 @@ namespace Ivyyy.GameEvent
 			if (m_responseString != null)
 				m_responseString.Invoke(val);
 		}
-	}
+
+        public void OnEventRaisedGameObject(GameObject val)
+        {
+            if (m_responseString != null)
+                m_responseGameObject.Invoke(val);
+        }
+    }
 }
