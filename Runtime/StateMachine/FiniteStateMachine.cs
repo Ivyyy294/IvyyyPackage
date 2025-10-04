@@ -4,27 +4,34 @@ using UnityEngine;
 
 namespace Ivyyy
 {
-	public class FiniteStateMachine : StateMachine
+	public class FiniteStateMachine : MonoBehaviour
 	{
-		protected IState currentState;
+		protected IState m_currentState;
 
-		public override void EnterState(IState newState)
+        //Public Methods
+		public void EnterState(IState newState)
 		{
-			if (currentState != null)
-				currentState.Exit(gameObject);
+			if (m_currentState != null)
+				m_currentState.Exit();
 			
 			if (newState != null)
 			{
-				currentState = newState;
-				currentState.Enter (gameObject);
+				m_currentState = newState;
+				m_currentState.Enter (gameObject);
 			}
 		}
 
-		protected override void Update()
+        public virtual void Update()
 		{
-			if (currentState != null)
-				currentState.Update(gameObject);
+			if (m_currentState != null)
+				m_currentState.Update();
 		}
+
+        public virtual void FixedUpdate()
+        {
+            if (m_currentState != null)
+                m_currentState.FixedUpdate();
+        }
 
 	}
 }

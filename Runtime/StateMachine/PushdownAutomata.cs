@@ -5,14 +5,15 @@ namespace Ivyyy
 {
 	public class PushdownAutomata : MonoBehaviour
 	{
-		Stack <IState> stateStack = new Stack <IState>();
+		protected Stack <IState> m_stateStack = new Stack <IState>();
 
-		public IState CurrentState() { return stateStack.Peek();}
+        //Public Methods
+		public IState CurrentState() { return m_stateStack.Peek();}
 
 		public void PushState (IState newState)
 		{
-			stateStack.Push (newState);
-			stateStack.Peek().Enter(gameObject);
+			m_stateStack.Push (newState);
+			m_stateStack.Peek().Enter(gameObject);
 		}
 
 		public void SwapState (IState newState)
@@ -23,13 +24,20 @@ namespace Ivyyy
 
 		public void PopState()
 		{
-			stateStack.Pop().Exit(gameObject);
-		}
+            if (m_stateStack.Count > 0)
+                m_stateStack.Pop().Exit();
+        }
 
 		protected virtual void Update ()
 		{
-			if (stateStack.Count > 0)
-				stateStack.Peek().Update(gameObject);
+			if (m_stateStack.Count > 0)
+				m_stateStack.Peek().Update();
 		}
-	}
+
+        public virtual void FixedUpdate()
+        {
+            if (m_stateStack.Count > 0)
+                m_stateStack.Peek().FixedUpdate();
+        }
+    }
 }
