@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Ivyyy.StateMachine
+namespace Ivyyy
 {
 	public class FiniteStateMachine : StateMachine
 	{

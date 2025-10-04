@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Ivyyy.StateMachine
+namespace Ivyyy
 { 
 	public abstract class StateMachine: MonoBehaviour
 	{
