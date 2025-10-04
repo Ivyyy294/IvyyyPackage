@@ -1,0 +1,182 @@
+
+GridBackground
+{
+	--grid-background-color: #282828;
+    --line-color: rgba(193, 196, 192, 0.1);
+    --thick-line-color: rgba(193, 196, 192, 0.1);
+    --spacing: 50;
+}
+
+Blackboard #typeLabel
+{
+	display: none;
+}
+
+/*Port Settings*/
+.port.output {
+  height: auto;
+  padding: 2px;
+}
+
+/*DialogNpcNode*/
+DialogNpcNode #title
+{
+	background-color: #4DA5F8;
+}
+DialogNpcNode #title-label
+{
+	color: #000000;
+}
+
+DialogNpcNode #unity-text-input
+{
+	min-width: 128px;
+	max-width: 256px;
+	border-radius: 4px;
+	-unity-text-align: upper-left;
+	white-space: normal;
+	min-width: 64px;
+	padding-left: 4px;
+	padding-right: 4px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+/*DialogChoiceNode*/
+DialogChoiceNode #title
+{
+	background-color: #30B700;
+}
+
+DialogChoiceNode #title-label
+{
+	color: #000000;
+}
+
+DialogChoiceNode #unity-text-input
+{
+	border-radius: 4px;
+	padding-left: 4px;
+	padding-right: 4px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	min-width: 128px;
+	max-width: 256px;
+	white-space: normal;
+}
+/*
+	max-width: 256px;
+	-unity-text-align: upper-left;
+	min-width: 64px;
+*/
+
+/*DialogRaiseEventNode*/
+DialogRaiseEventNode #title
+{
+	background-color: #FF5555;
+}
+
+DialogRaiseEventNode #title-label
+{
+	color: #000000;
+}
+
+/*DialogListenEventNode*/
+DialogListenEventNode #title
+{
+	background-color: #FFF356;
+}
+
+DialogListenEventNode #title-label
+{
+	color: #000000;
+}
+
+/*DialogListenEventNode*/
+DialogLogicNode #title
+{
+	background-color: #E900FA;
+}
+
+DialogLogicNode #title-label
+{
+	color: #000000;
+}
+
+/*DialogListenEventNode*/
+DialogWaitNode #title
+{
+	background-color: #FFF356;
+}
+
+DialogWaitNode #title-label
+{
+	color: #000000;
+}
+
+/*PuckNode*/
+DialogPuckNode #title
+{
+	background-color: #00FFF0;
+}
+
+DialogPuckNode #title-label
+{
+	color: #000000;
+}
+
+/*DialogEditValueNode*/
+DialogEditValueNode #title
+{
+	background-color: #FF9400;
+}
+
+DialogEditValueNode #title-label
+{
+	color: #000000;
+}
+
+/*DialogPlayerAutoNode*/
+DialogPlayerAutoNode #title
+{
+	background-color: #96FF00;
+}
+
+DialogPlayerAutoNode #title-label
+{
+	color: #000000;
+}
+
+/*
+//CONTAINERS
+
+.ds-node__extension-container
+{
+	background-color: #1D1D1E;
+	padding: 8px;
+}
+
+.ds-node__custom-data-container
+{
+	background-color: #212325;
+	border-radius: 4px;
+	padding: 8px;
+}
+
+//INPUTS
+.ds-node__textfield > .unity-text-field__input
+{
+	background-color: #1D1D1E;
+	border-color: #27292C;
+	border-radius: 4px;
+	max-width: 240px;
+	min-width: 160px;
+	padding: 8px;
+}
+
+.ds-node__textfield__hidden > .unity-text-field__input
+{
+	background-color: transparent;
+	border-color transparent;
+}
+*/
