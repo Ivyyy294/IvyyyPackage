@@ -96,6 +96,14 @@ namespace Ivyyy.Network
 				managerState = null;
 			}
 		}
+        
+        public static void NetworkSendData()
+        {
+            if (Me == null || Me.managerState == null)
+                return;
+
+            Me.SendData();
+        }
 
 		//Private Methods
 		private void Awake()
@@ -114,16 +122,16 @@ namespace Ivyyy.Network
 			managerState?.ShutDown();
 		}
 
-		private void Update()
-		{
-			if (timer < (1f / tickRate))
-				timer += Time.unscaledTime;
-			else
-			{
-				managerState?.Update();
-				timer = 0f;
-			}
-		}
-	}
+        private void SendData()
+        {
+            if (timer < (1f / tickRate))
+                timer += Time.unscaledTime;
+            else
+            {
+                managerState?.Update();
+                timer = 0f;
+            }
+        }
+    }
 }
 
